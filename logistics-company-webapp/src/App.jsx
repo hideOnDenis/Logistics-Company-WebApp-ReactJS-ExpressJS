@@ -1,11 +1,16 @@
 import { useState } from "react";
 import Button from "@mui/material/Button";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
 function App() {
-  const [count, setCount] = useState(0);
   return (
-    <Button variant="contained" onClick={() => setCount(count + 1)}>
-      Hello World! {count}
-    </Button>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        // Define other routes...
+      </Routes>
+    </Router>
   );
 }
 
