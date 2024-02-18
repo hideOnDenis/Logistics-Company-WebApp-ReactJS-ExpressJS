@@ -11,17 +11,23 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Link as RouterLink } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { signUp } from "../features/auth/authSlice.jsx";
 
 const defaultTheme = createTheme();
 
 function RegisterPage() {
-  const handleSubmit = (event) => {
+  const dispatch = useDispatch();
+  const { isLoading, error } = useSelector((state) => state.auth);
+  const handleRegisterSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    dispatch(
+      signUp({
+        email: data.get("email"),
+        password: data.get("password"),
+      })
+    );
   };
 
   return (
@@ -45,7 +51,7 @@ function RegisterPage() {
           <Box
             component="form"
             noValidate
-            onSubmit={handleSubmit}
+            onSubmit={handleRegisterSubmit}
             sx={{ mt: 3 }}
           >
             <Grid container spacing={2}>
@@ -93,6 +99,16 @@ function RegisterPage() {
               </Grid>
               <Grid item xs={12}></Grid>
             </Grid>
+            {isLoading && (
+              <Typography component="p" sx={{ color: "primary.main" }}>
+                Registering...
+              </Typography>
+            )}
+            {error && (
+              <Typography component="p" sx={{ color: "error.main" }}>
+                {error}
+              </Typography>
+            )}
             <Button
               type="submit"
               fullWidth

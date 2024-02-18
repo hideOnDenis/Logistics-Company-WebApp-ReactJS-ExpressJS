@@ -13,19 +13,26 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Copyright from "../components/Copyright.jsx";
 import { Link as RouterLink } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { signIn } from "../features/auth/authSlice.jsx"; // Adjust the path as necessary
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
 const defaultTheme = createTheme();
 
 function LoginPage() {
-  const handleSubmit = (event) => {
+  const dispatch = useDispatch();
+  const { isLoading, error } = useSelector((state) => state.auth);
+
+  const handleLoginSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    dispatch(
+      signIn({
+        email: data.get("email"),
+        password: data.get("password"),
+      })
+    );
   };
 
   return (
@@ -48,7 +55,7 @@ function LoginPage() {
           </Typography>
           <Box
             component="form"
-            onSubmit={handleSubmit}
+            onSubmit={handleLoginSubmit}
             noValidate
             sx={{ mt: 1 }}
           >
@@ -76,11 +83,18 @@ function LoginPage() {
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
+            {
+              isLoading && <Typography>Loading...</Typography> // Show loading indicator
+            }
+            {
+              error && <Typography color="error">{error}</Typography> // Show error message
+            }
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={isLoading} // Disable the button while loading
             >
               Sign In
             </Button>
