@@ -14,7 +14,8 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Copyright from "../components/Copyright.jsx";
 import { Link as RouterLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { signIn } from "../features/auth/authSlice.jsx"; // Adjust the path as necessary
+import { signIn } from "../features/auth/authSlice.jsx";
+import { useNavigate } from "react-router-dom";
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
@@ -22,6 +23,8 @@ const defaultTheme = createTheme();
 
 function LoginPage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { isLoading, error } = useSelector((state) => state.auth);
 
   const handleLoginSubmit = (event) => {
@@ -32,7 +35,11 @@ function LoginPage() {
         email: data.get("email"),
         password: data.get("password"),
       })
-    );
+    ).then((action) => {
+      if (action.type === "auth/signIn/fulfilled") {
+        navigate("/dashboard");
+      }
+    });
   };
 
   return (

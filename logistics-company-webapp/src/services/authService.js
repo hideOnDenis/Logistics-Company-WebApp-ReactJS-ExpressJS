@@ -11,12 +11,19 @@ export const signInService = async ({ email, password }) => {
 };
 
 export const signUpService = async ({ email, password }) => {
+    // First, check for missing email or password
+    if (!email || !password) {
+        throw new Error('Missing email or password');
+    }
+
+    // Then, check if the user already exists
     const exists = users.some(user => user.email === email);
-    if (!exists) {
-        const newUser = { email, password };
-        users.push(newUser);
-        return newUser;
-    } else {
+    if (exists) {
         throw new Error('User already exists');
     }
+
+    // If validation passes and the user does not exist, create a new user
+    const newUser = { email, password };
+    users.push(newUser);
+    return newUser;
 };
