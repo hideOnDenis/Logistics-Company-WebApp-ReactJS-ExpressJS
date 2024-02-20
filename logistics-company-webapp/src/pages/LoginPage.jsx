@@ -37,7 +37,7 @@ function LoginPage() {
       })
     ).then((action) => {
       if (action.type === "auth/signIn/fulfilled") {
-        navigate("/dashboard");
+        navigate("/employee/dashboard");
       }
     });
   };
