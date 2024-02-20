@@ -4,7 +4,9 @@ const users = [
         id: "1",
         email: "bruh@gmail.com",
         password: "bruh123",
+        isAdmin: true,
     },
+
 
 ]; // This would be your data.js equivalent
 
@@ -30,7 +32,7 @@ export const signUpService = async ({ email, password }) => {
     }
 
     // If validation passes and the user does not exist, create a new user
-    const newUser = { email, password };
+    const newUser = { email, password, isAdmin: false };
     users.push(newUser);
     return newUser;
 };
