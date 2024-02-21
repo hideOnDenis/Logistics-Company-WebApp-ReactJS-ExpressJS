@@ -4,7 +4,7 @@ const users = [
         id: "1",
         email: "bruh@gmail.com",
         password: "bruh123",
-        isAdmin: true,
+        isAdmin: false,
     },
 
 
@@ -40,5 +40,15 @@ export const signUpService = async ({ email, password }) => {
 export const getAllUsers = async () => {
     // In a real application, replace this with a fetch request to your backend
     return users; // Return the users array
+};
+
+export const toggleAdminStatus = async (userId) => {
+    const userIndex = users.findIndex(user => user.id === userId);
+    if (userIndex > -1) {
+        users[userIndex].isAdmin = !users[userIndex].isAdmin;
+        return users[userIndex]; // Return the updated user
+    } else {
+        throw new Error('User not found');
+    }
 };
 

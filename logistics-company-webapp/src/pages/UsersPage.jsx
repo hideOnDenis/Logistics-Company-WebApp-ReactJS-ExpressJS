@@ -1,14 +1,19 @@
-import * as React from "react";
+import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers } from "../features/users/userSlice.jsx"; // Adjust the path as necessary
+import {
+  fetchUsers,
+  toggleUserAdminStatus,
+} from "../features/users/userSlice.jsx";
+import Button from "@mui/material/Button";
 
 export default function UsersPage() {
   const dispatch = useDispatch();
+
   const { users, isLoading, error } = useSelector((state) => state.users);
 
-  React.useEffect(() => {
+  useEffect(() => {
     dispatch(fetchUsers());
   }, [dispatch]);
 
@@ -23,6 +28,27 @@ export default function UsersPage() {
       // Convert boolean to a more readable format
       valueGetter: (params) => (params.row.isAdmin ? "Yes" : "No"),
     },
+    {
+      field: "actions",
+      headerName: "Actions",
+      sortable: false,
+      width: 150,
+      renderCell: (params) => {
+        const handleToggleAdmin = () => {
+          dispatch(toggleUserAdminStatus(params.row.id));
+        };
+
+        return (
+          <Button
+            variant="contained"
+            color={params.row.isAdmin ? "secondary" : "primary"}
+            onClick={handleToggleAdmin}
+          >
+            {params.row.isAdmin ? "Make client" : "Make employee"}
+          </Button>
+        );
+      },
+    },
 
     // You can add more fields here as your data structure evolves
   ];
@@ -36,6 +62,7 @@ export default function UsersPage() {
   return (
     <Box sx={{ height: 400, width: "100%" }}>
       <DataGrid
+        key={users.index}
         rows={rows}
         columns={columns}
         pageSize={5}
