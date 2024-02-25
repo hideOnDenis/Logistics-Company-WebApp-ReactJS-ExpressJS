@@ -6,18 +6,6 @@ export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
   return response;
 });
 
-export const toggleUserAdminStatus = createAsyncThunk(
-  "users/toggleUserAdminStatus",
-  async (userId, thunkAPI) => {
-    try {
-      const response = await toggleAdminStatus(userId);
-      return response;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
-    }
-  }
-);
-
 const initialState = {
   users: [],
   isLoading: false,

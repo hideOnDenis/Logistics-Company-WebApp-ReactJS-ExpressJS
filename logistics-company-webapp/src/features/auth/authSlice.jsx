@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { signInService, signUpService } from "../../services/authService.js"; // This is your local auth service
+import { login, register } from "../../app/api.js"; // Adjust path as necessary
 
 const initialState = {
   user: null,
@@ -11,10 +11,13 @@ export const signIn = createAsyncThunk(
   "auth/signIn",
   async (credentials, thunkAPI) => {
     try {
-      const response = await signInService(credentials);
-      return response;
+      const { data } = await login(credentials); // Destructuring to get data from the response
+      // Store token in localStorage or sessionStorage
+      localStorage.setItem("token", data.token);
+      // Return relevant user information excluding the password
+      return { id: data.id, isAdmin: data.isAdmin };
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      return thunkAPI.rejectWithValue(error.response.data.message);
     }
   }
 );
@@ -23,10 +26,11 @@ export const signUp = createAsyncThunk(
   "auth/signUp",
   async (userData, thunkAPI) => {
     try {
-      const response = await signUpService(userData);
-      return response;
+      const { data } = await register(userData);
+      localStorage.setItem("token", data.token);
+      return { id: data.id, isAdmin: data.isAdmin };
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      return thunkAPI.rejectWithValue(error.response.data.message);
     }
   }
 );
@@ -34,11 +38,17 @@ export const signUp = createAsyncThunk(
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    // Implement logout functionality
+    logout(state) {
+      state.user = null;
+      localStorage.removeItem("token");
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(signIn.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = action.payload; // Only store non-sensitive user info
         state.error = null;
         state.isLoading = false;
       })
@@ -51,10 +61,8 @@ const authSlice = createSlice({
       })
       .addCase(signUp.pending, (state) => {
         state.isLoading = true;
-        state.error = null;
       })
       .addCase(signUp.fulfilled, (state, action) => {
-        // Assuming the response includes the user data
         state.user = action.payload;
         state.isLoading = false;
         state.error = null;
@@ -65,5 +73,7 @@ const authSlice = createSlice({
       });
   },
 });
+
+export const { logout } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -33,7 +33,7 @@ router.post('/api/login', async (req, res) => {
         if (!isMatch) {
             return res.status(400).send("Incorrect password");
         }
-        console.log(process.env.JWT_SECRET);
+
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.status(200).json({ token, email: user.email, id: user._id, isAdmin: user.isAdmin });
     } catch (error) {
