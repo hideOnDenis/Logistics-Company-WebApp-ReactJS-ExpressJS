@@ -11,13 +11,16 @@ export const signIn = createAsyncThunk(
   "auth/signIn",
   async (credentials, thunkAPI) => {
     try {
-      const { data } = await login(credentials); // Destructuring to get data from the response
-      // Store token in localStorage or sessionStorage
-      localStorage.setItem("token", data.token);
-      // Return relevant user information excluding the password
-      return { id: data.id, isAdmin: data.isAdmin };
+      const response = await login(credentials);
+      return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data.message);
+      // Ensure the error is handled correctly
+      const errorMessage =
+        error.response && error.response.data && error.response.data.message
+          ? error.response.data.message
+          : "Login failed due to an unexpected error.";
+      // Use rejectWithValue to pass the error message
+      return thunkAPI.rejectWithValue(errorMessage);
     }
   }
 );

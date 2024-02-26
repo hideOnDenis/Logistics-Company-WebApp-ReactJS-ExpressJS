@@ -21,10 +21,11 @@ export const login = (body) => {
             console.log(response.data);
             const { token, email, id, isAdmin } = response.data;
             localStorage.setItem('accessToken', token);
-            localStorage.setItem('userEmail', email);
-            localStorage.setItem('userId', id);
+            localStorage.setItem('email', email);
+            localStorage.setItem('id', id);
             localStorage.setItem('isAdmin', isAdmin); // Assuming roles is an array or object
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            return response.data;
         })
         .catch((error) => {
             console.error('Login failed:', error.response);
@@ -43,14 +44,14 @@ export const login = (body) => {
 //     });
 // };
 
-// export const getUsers = () => {
-//     return axios.get(`${domain}/api/users`, {
-//         headers: {
-//             'Content-Type': 'application/json',
-//             Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
-//         },
-//     });
-// };
+export const getUsers = () => {
+    return axios.get(`${domain}/api/users`, {
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
+        },
+    });
+};
 
 // export const getShipments = () => {
 //     return axios.get(`${domain}/api/shipments`, {

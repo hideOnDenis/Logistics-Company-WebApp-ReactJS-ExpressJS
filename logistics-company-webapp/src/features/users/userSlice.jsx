@@ -1,10 +1,40 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getAllUsers, toggleAdminStatus } from "../../services/authService.js";
+import { getUsers } from "../../app/api";
+import axios from "axios";
 
-export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
-  const response = await getAllUsers();
-  return response;
-});
+const domain = "http://localhost:3000";
+
+export const fetchUsers = createAsyncThunk(
+  "users/fetchUsers",
+  async (_, thunkAPI) => {
+    try {
+      const response = await getUsers();
+      return response.data; // Assuming the API returns the list of users directly
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const toggleAdminStatus = createAsyncThunk(
+  "users/toggleAdminStatus",
+  async (userId, thunkAPI) => {
+    try {
+      const response = await axios.patch(
+        `${domain}/api/users/toggleAdmin/${userId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data.message);
+    }
+  }
+);
 
 const initialState = {
   users: [],
@@ -15,11 +45,14 @@ const initialState = {
 const userSlice = createSlice({
   name: "user",
   initialState,
-  reducers: {},
+  reducers: {
+    // You can add regular reducers here if needed
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUsers.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -27,15 +60,7 @@ const userSlice = createSlice({
       })
       .addCase(fetchUsers.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message;
-      })
-      .addCase(toggleUserAdminStatus.fulfilled, (state, action) => {
-        const index = state.users.findIndex(
-          (user) => user.id === action.payload.id
-        );
-        if (index !== -1) {
-          state.users[index] = action.payload;
-        }
+        state.error = action.payload;
       });
   },
 });

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { User } from "../mongoose/schemas/user.mjs";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { auth } from "../utils/middlewares.mjs";
 
 
 const router = Router();
@@ -40,6 +41,40 @@ router.post('/api/login', async (req, res) => {
         console.error(error);
         res.status(500).send("Server error");
     }
+
+
 });
+
+router.get('/api/users', async (req, res) => {
+    try {
+        // Fetch all users from the database
+        const users = await User.find({}, '-password'); // Exclude passwords from the result
+        res.json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: 'Server error' });
+    }
+});
+
+// Example route in your users router file
+
+router.patch('/api/users/toggleAdmin/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+        user.isAdmin = !user.isAdmin;
+        await user.save();
+        res.status(200).json({ id: user._id, email: user.email, isAdmin: user.isAdmin });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
 
 export default router;
