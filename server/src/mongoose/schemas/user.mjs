@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
 
+
 const UserSchema = new mongoose.Schema({
     email: {
         type: mongoose.Schema.Types.String,
@@ -15,7 +16,12 @@ const UserSchema = new mongoose.Schema({
     isAdmin: {
         type: mongoose.Schema.Types.Boolean,
         default: false,
-    }
+    },
+    company: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Company' // Assuming a single company per user
+    },
+
 
 })
 

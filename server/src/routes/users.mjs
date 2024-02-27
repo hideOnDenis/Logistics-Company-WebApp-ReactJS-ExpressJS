@@ -1,13 +1,20 @@
 import { Router } from "express";
-import { User } from "../mongoose/schemas/user.mjs";
+import { User } from "../mongoose/schemas/User.mjs";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { auth } from "../utils/middlewares.mjs";
+import { auth, adminAuth } from "../utils/middlewares.mjs";
+import { createUserValidationSchema } from "../utils/validationSchemas.mjs";
+import { checkSchema, validationResult } from "express-validator";
 
 
 const router = Router();
 
-router.post('/api/register', async (req, res) => {
+router.post('/api/register', checkSchema(createUserValidationSchema), async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
         let { email, password } = req.body;
         let user = await User.findOne({ email });
@@ -23,7 +30,13 @@ router.post('/api/register', async (req, res) => {
     }
 });
 
-router.post('/api/login', async (req, res) => {
+router.post('/api/login', checkSchema(createUserValidationSchema), async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
         const { email, password } = req.body;
         let user = await User.findOne({ email });
@@ -35,7 +48,7 @@ router.post('/api/login', async (req, res) => {
             return res.status(400).send("Incorrect password");
         }
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.status(200).json({ token, email: user.email, id: user._id, isAdmin: user.isAdmin });
     } catch (error) {
         console.error(error);
@@ -45,7 +58,7 @@ router.post('/api/login', async (req, res) => {
 
 });
 
-router.get('/api/users', async (req, res) => {
+router.get('/api/users', adminAuth, async (req, res) => {
     try {
         // Fetch all users from the database
         const users = await User.find({}, '-password'); // Exclude passwords from the result
@@ -58,7 +71,7 @@ router.get('/api/users', async (req, res) => {
 
 // Example route in your users router file
 
-router.patch('/api/users/toggleAdmin/:id', async (req, res) => {
+router.patch('/api/users/toggleAdmin/:id', adminAuth, async (req, res) => {
     const { id } = req.params;
     try {
         const user = await User.findById(id);

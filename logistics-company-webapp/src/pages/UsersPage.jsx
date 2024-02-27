@@ -13,10 +13,9 @@ export default function UsersPage() {
     dispatch(fetchUsers());
   }, [dispatch]);
 
-  // Function to handle the admin status toggle and refetch users
   const handleToggleAdmin = async (userId) => {
-    await dispatch(toggleAdminStatus(userId)); // Dispatch the toggle admin action
-    dispatch(fetchUsers()); // Refetch users to update the UI with the new status
+    await dispatch(toggleAdminStatus(userId));
+    dispatch(fetchUsers());
   };
 
   const columns = [
@@ -51,7 +50,14 @@ export default function UsersPage() {
   }));
 
   return (
-    <Box sx={{ height: 400, width: "100%" }}>
+    // Adjusted Box styles to fill the whole viewport
+    <Box
+      sx={{
+        height: "100vh",
+        width: "100%",
+        "& .MuiDataGrid-root": { border: 0 },
+      }}
+    >
       <DataGrid
         rows={rows}
         columns={columns}

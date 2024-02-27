@@ -30,7 +30,7 @@ export const signUp = createAsyncThunk(
   async (userData, thunkAPI) => {
     try {
       const { data } = await register(userData);
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("accessToken", data.token);
       return { id: data.id, isAdmin: data.isAdmin };
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data.message);
