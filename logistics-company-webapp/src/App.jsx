@@ -6,6 +6,8 @@ import RegisterPage from "./pages/RegisterPage.jsx";
 import EmployeeDashboard from "./pages/EmployeeDashboardPage.jsx";
 import ClientDashboard from "./pages/ClientDashboardPage.jsx";
 import UsersPage from "./pages/UsersPage.jsx";
+import CompanyPage from "./pages/CompanyPage.jsx";
+
 function App() {
   return (
     <Router>
@@ -16,6 +18,7 @@ function App() {
         <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
         <Route path="/client/dashboard" element={<ClientDashboard />} />
         <Route path="/employee/users" element={<UsersPage />} />
+        <Route path="/employee/companies" element={<CompanyPage />} />
       </Routes>
     </Router>
   );

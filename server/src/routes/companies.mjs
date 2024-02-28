@@ -29,6 +29,7 @@ router.get('/api/companies', adminAuth, async (req, res) => {
     }
 });
 
+// Add user to company
 router.patch('/api/companies/:companyId/employees', adminAuth, async (req, res) => {
     try {
         const { userId } = req.body;
@@ -56,6 +57,7 @@ router.patch('/api/companies/:companyId/employees', adminAuth, async (req, res) 
 });
 
 
+// Delete user from company
 router.delete('/api/companies/:companyId/employees/:userId', adminAuth, async (req, res) => {
     try {
         const { companyId, userId } = req.params;
@@ -71,6 +73,21 @@ router.delete('/api/companies/:companyId/employees/:userId', adminAuth, async (r
         res.status(500).json({ message: error.message });
     }
 });
+
+// Delete a company
+router.delete('/api/companies/:companyId', adminAuth, async (req, res) => {
+    try {
+        const { companyId } = req.params;
+
+        const company = await Company.findByIdAndDelete(companyId);
+        if (!company) return res.status(404).json({ message: 'Company not found' });
+
+        res.json({ message: 'Company deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 
 
 export default router;
