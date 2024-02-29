@@ -11,12 +11,14 @@ export const auth = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded.user; // Assuming decoded.user contains user information
+        // Adjusted to match your token structure:
+        req.user = { id: decoded.id, isAdmin: decoded.isAdmin };
         next();
     } catch (err) {
         res.status(401).json({ msg: 'Token is not valid' });
     }
 };
+
 
 
 export const adminAuth = (req, res, next) => {

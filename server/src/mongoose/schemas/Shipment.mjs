@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { v4 as uuidv4 } from 'uuid';
+
 
 const ShipmentSchema = new mongoose.Schema({
     createdBy: {
@@ -13,18 +13,15 @@ const ShipmentSchema = new mongoose.Schema({
         required: true
     },
     status: {
-        type: String,
+        type: mongoose.Schema.Types.String,
         enum: ['preparing', 'shipped', 'delivered', 'cancelled'],
         default: 'preparing',
     },
     destination: {
-        type: String,
+        type: mongoose.Schema.Types.String,
         required: true
     },
-    created: {
-        type: Date,
-        default: Date.now,
-    },
+
 });
 
 export const Shipment = mongoose.model("Shipment", ShipmentSchema);

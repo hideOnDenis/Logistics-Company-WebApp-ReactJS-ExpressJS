@@ -4,7 +4,7 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import EmployeeDashboard from "./pages/EmployeeDashboardPage.jsx";
-import ClientDashboard from "./pages/ClientDashboardPage.jsx";
+import ShipmentPage from "./pages/ShipmentPage.jsx";
 import UsersPage from "./pages/UsersPage.jsx";
 import CompanyPage from "./pages/CompanyPage.jsx";
 
@@ -16,7 +16,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
-        <Route path="/client/dashboard" element={<ClientDashboard />} />
+        <Route path="/client/dashboard" element={<ShipmentPage />} />
         <Route path="/employee/users" element={<UsersPage />} />
         <Route path="/employee/companies" element={<CompanyPage />} />
       </Routes>
