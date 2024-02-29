@@ -7,12 +7,20 @@ import {
   addCompany,
   deleteCompany,
   addUserToCompany,
+  removeUserFromCompany,
 } from "../features/companies/companySlice";
 import { fetchUsers } from "../features/users/userSlice";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
-import { TextField, Stack, Select, MenuItem } from "@mui/material";
+import {
+  TextField,
+  Stack,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
 
 const style = {
   position: "absolute",
@@ -31,6 +39,11 @@ export default function CompaniesPage() {
   const [addUserToCompanyOpen, setAddUserToCompanyOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
+  const [removeUserFromCompanyOpen, setRemoveUserFromCompanyOpen] =
+    useState(false);
+  const [companyToRemoveFrom, setCompanyToRemoveFrom] = useState("");
+  const [userToRemove, setUserToRemove] = useState("");
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
@@ -39,6 +52,11 @@ export default function CompaniesPage() {
 
   const handleOpenAddUserToCompanyModal = () => setAddUserToCompanyOpen(true);
   const handleCloseAddUserToCompanyModal = () => setAddUserToCompanyOpen(false);
+
+  const handleOpenRemoveUserFromCompanyModal = () =>
+    setRemoveUserFromCompanyOpen(true);
+  const handleCloseRemoveUserFromCompanyModal = () =>
+    setRemoveUserFromCompanyOpen(false);
 
   const dispatch = useDispatch();
 
@@ -81,6 +99,21 @@ export default function CompaniesPage() {
     handleCloseAddUserToCompanyModal(); // Close the modal
   };
 
+  const handleRemoveUserFromCompanySubmit = async () => {
+    const actionResult = await dispatch(
+      removeUserFromCompany({
+        companyId: companyToRemoveFrom,
+        userId: userToRemove,
+      })
+    );
+    if (removeUserFromCompany.fulfilled.match(actionResult)) {
+      dispatch(fetchCompanies()); // Refetch companies list to update UI
+      setCompanyToRemoveFrom(""); // Reset the company select state
+      setUserToRemove(""); // Reset the user select state
+    }
+    handleCloseRemoveUserFromCompanyModal(); // Close the modal
+  };
+
   const columns = [
     { field: "id", headerName: "ID", width: 90, hide: true },
     { field: "name", headerName: "Name", width: 200 },
@@ -121,19 +154,27 @@ export default function CompaniesPage() {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "flex-end", // Align items to the right
           alignItems: "center",
+          gap: "8px", // Spacing between each button
           p: 2,
         }}
       >
-        <Typography variant="h4" component="h1">
+        <Typography variant="h4" component="h1" sx={{ flexGrow: 1 }}>
           Companies
         </Typography>
+        {/* The buttons will automatically space out evenly with the gap property */}
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleOpenRemoveUserFromCompanyModal}
+        >
+          Remove User from Company
+        </Button>
         <Button
           variant="contained"
           color="primary"
           onClick={handleOpenAddUserToCompanyModal}
-          sx={{ marginLeft: "1300px" }}
         >
           Add User to Company
         </Button>
@@ -231,6 +272,7 @@ export default function CompaniesPage() {
                     (employee) => employee._id === user._id
                   );
                 })
+                .filter((user) => user.isAdmin)
                 .map((user) => (
                   <MenuItem key={user._id} value={user._id}>
                     {user.email}
@@ -244,6 +286,64 @@ export default function CompaniesPage() {
               color="primary"
             >
               Add User to Company
+            </Button>
+          </Stack>
+        </Box>
+      </Modal>
+      <Modal
+        open={removeUserFromCompanyOpen}
+        onClose={handleCloseRemoveUserFromCompanyModal}
+        aria-labelledby="remove-user-from-company-modal-title"
+        aria-describedby="remove-user-from-company-modal-description"
+      >
+        <Box sx={style}>
+          <Typography
+            id="remove-user-from-company-modal-title"
+            variant="h6"
+            component="h2"
+          >
+            Remove User from Company
+          </Typography>
+          <Stack spacing={2} sx={{ mt: 2 }}>
+            <FormControl fullWidth>
+              <InputLabel id="select-company-label">Select Company</InputLabel>
+              <Select
+                labelId="select-company-label"
+                value={companyToRemoveFrom}
+                onChange={(e) => setCompanyToRemoveFrom(e.target.value)}
+                label="Select Company"
+              >
+                {companies.map((company) => (
+                  <MenuItem key={company._id} value={company._id}>
+                    {company.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel id="select-user-label">Select User</InputLabel>
+              <Select
+                labelId="select-user-label"
+                value={userToRemove}
+                onChange={(e) => setUserToRemove(e.target.value)}
+                label="Select User"
+              >
+                {companyToRemoveFrom &&
+                  companies
+                    .find((company) => company._id === companyToRemoveFrom)
+                    ?.employees.map((employee) => (
+                      <MenuItem key={employee._id} value={employee._id}>
+                        {employee.email}
+                      </MenuItem>
+                    ))}
+              </Select>
+            </FormControl>
+            <Button
+              onClick={handleRemoveUserFromCompanySubmit}
+              variant="contained"
+              color="primary"
+            >
+              Remove User from Company
             </Button>
           </Stack>
         </Box>

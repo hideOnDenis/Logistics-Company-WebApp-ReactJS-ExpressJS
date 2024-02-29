@@ -67,6 +67,7 @@ export const deleteCompany = createAsyncThunk(
   }
 );
 
+// Async thunk to add user to company
 export const addUserToCompany = createAsyncThunk(
   "companies/addUserToCompany",
   async ({ companyId, userId }, { rejectWithValue }) => {
@@ -81,6 +82,26 @@ export const addUserToCompany = createAsyncThunk(
         }
       );
       return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+// Async thunk to remove user from company
+export const removeUserFromCompany = createAsyncThunk(
+  "companies/removeUserFromCompany",
+  async ({ companyId, userId }, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(
+        `${domain}/api/companies/${companyId}/employees/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+      return { companyId, userId }; // Return both IDs to update the state
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -134,6 +155,23 @@ const companySlice = createSlice({
       .addCase(addUserToCompany.rejected, (state, action) => {
         // Optionally handle rejection
         state.error = action.payload || "Failed to add user to company";
+      })
+      .addCase(removeUserFromCompany.fulfilled, (state, action) => {
+        const { companyId, userId } = action.payload;
+        const companyIndex = state.items.findIndex(
+          (company) => company._id === companyId
+        );
+        if (companyIndex !== -1) {
+          // Filter out the user from the employees array
+          state.items[companyIndex].employees = state.items[
+            companyIndex
+          ].employees.filter((employee) => employee._id !== userId);
+        }
+      })
+      // Optionally, handle the rejected case:
+      .addCase(removeUserFromCompany.rejected, (state, action) => {
+        // You can handle the error here if needed
+        state.error = action.payload || "Failed to remove user from company";
       });
   },
 });

@@ -1,10 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 const initialState = {};
 
-const parcelSlice = createSlice({
-  name: "parcel",
+const shipmentSlice = createSlice({
+  name: "shipment",
   initialState,
   reducers: {},
 });
 
-export default parcelSlice.reducer;
+export default shipmentSlice.reducer;
