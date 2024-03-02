@@ -9,6 +9,7 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
+import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
@@ -20,6 +21,9 @@ import Chart from "../components/Chart.jsx";
 import Deposits from "../components/Deposits.jsx";
 import Orders from "../components/Orders.jsx";
 import Copyright from "../components/Copyright.jsx";
+import { useDispatch } from "react-redux"; // Import useDispatch
+import { logout } from "../features/auth/authSlice"; // Import the logout action
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import * as React from "react";
 
 const drawerWidth = 240;
@@ -73,8 +77,15 @@ const defaultTheme = createTheme();
 
 export default function EmployeeDashboard() {
   const [open, setOpen] = React.useState(true);
+  const dispatch = useDispatch(); // Initialize useDispatch
+  const navigate = useNavigate(); // Initialize useNavigate
   const toggleDrawer = () => {
     setOpen(!open);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout()); // Dispatch the logout action
+    navigate("/login"); // Redirect to login page
   };
 
   return (
@@ -108,6 +119,9 @@ export default function EmployeeDashboard() {
             >
               Dashboard
             </Typography>
+            <Button color="inherit" onClick={handleLogout}>
+              Logout
+            </Button>
             <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />

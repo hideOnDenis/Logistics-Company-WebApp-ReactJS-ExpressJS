@@ -18,7 +18,7 @@ export const signIn = createAsyncThunk(
       const errorMessage =
         error.response && error.response.data && error.response.data.message
           ? error.response.data.message
-          : "Login failed due to an unexpected error.";
+          : "User does not exist.";
       // Use rejectWithValue to pass the error message
       return thunkAPI.rejectWithValue(errorMessage);
     }
@@ -45,13 +45,14 @@ const authSlice = createSlice({
     // Implement logout functionality
     logout(state) {
       state.user = null;
-      localStorage.removeItem("token");
+      localStorage.clear();
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(signIn.fulfilled, (state, action) => {
         state.user = action.payload; // Only store non-sensitive user info
+
         state.error = null;
         state.isLoading = false;
       })

@@ -24,6 +24,7 @@ export const login = (body) => {
             localStorage.setItem('email', email);
             localStorage.setItem('id', id);
             localStorage.setItem('isAdmin', isAdmin); // Assuming roles is an array or object
+
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             return response.data;
         })

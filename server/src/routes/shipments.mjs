@@ -60,7 +60,7 @@ router.post("/api/shipments", auth, async (req, res) => {
     }
 });
 
-
+// Delete shipment
 router.delete("/api/shipments/:shipmentId", adminAuth, async (req, res) => {
     try {
         const { shipmentId } = req.params;
@@ -94,6 +94,7 @@ router.delete("/api/shipments/:shipmentId", adminAuth, async (req, res) => {
     }
 });
 
+// Update shipment
 router.patch("/api/shipments/:shipmentId/status", adminAuth, async (req, res) => {
     try {
         const { shipmentId } = req.params;

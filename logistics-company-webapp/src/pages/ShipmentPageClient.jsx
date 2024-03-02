@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchShipments,
   createShipment,
-  deleteShipment,
   updateShipmentStatus,
 } from "../features/shipments/shipmentSlice";
-import { fetchCompanies } from "../features/companies/companySlice"; // Assuming you have this
+import { fetchCompanies } from "../features/companies/companySlice";
+import { logout } from "../features/auth/authSlice.jsx";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -18,6 +18,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { useNavigate } from "react-router-dom";
 
 const style = {
   position: "absolute",
@@ -30,13 +31,14 @@ const style = {
   p: 4,
 };
 
-export default function ShipmentPage() {
+export default function ShipmentPageClient() {
   const [open, setOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState("");
   const [destination, setDestination] = useState("");
   const [editRowsModel, setEditRowsModel] = useState({});
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { shipments, status } = useSelector((state) => state.shipments);
   const companies = useSelector((state) => state.companies.items); // Accessing companies correctly
 
@@ -66,22 +68,14 @@ export default function ShipmentPage() {
     handleClose();
   };
 
-  const handleDeleteShipment = (shipmentId) => {
-    dispatch(deleteShipment(shipmentId));
-  };
-
   const handleEditRowsModelChange = useCallback((model) => {
     setEditRowsModel(model);
   }, []);
 
-  const handleStatusChange = (event, id) => {
-    const newStatus = event.target.value;
-    // Dispatch the update status action
-    dispatch(updateShipmentStatus({ shipmentId: id, status: newStatus }));
-    // If you want to immediately update the local state, you could do it here
-    // but it's better to refetch or update the state based on the response
+  const handleLogout = () => {
+    dispatch(logout()); // Dispatch the logout action
+    navigate("/login"); // Redirect user to login page after logout
   };
-
   const companyOptions = companies?.map((company) => (
     <MenuItem key={company._id} value={company._id}>
       {company.name}
@@ -112,39 +106,8 @@ export default function ShipmentPage() {
       field: "status",
       headerName: "Status",
       width: 130,
-      renderCell: (params) => (
-        <Select
-          labelId="select-status-label"
-          id="select-status"
-          value={params.value}
-          onChange={(event) => handleStatusChange(event, params.id)}
-          size="small"
-        >
-          <MenuItem value="preparing">Preparing</MenuItem>
-          <MenuItem value="shipped">Shipped</MenuItem>
-          <MenuItem value="delivered">Delivered</MenuItem>
-          <MenuItem value="cancelled">Cancelled</MenuItem>
-        </Select>
-      ),
-      editable: true,
     },
-    {
-      field: "delete",
-      headerName: "Delete",
-      renderCell: (params) => {
-        return (
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => handleDeleteShipment(params.row._id)}
-          >
-            Delete
-          </Button>
-        );
-      },
-    },
-
-    // Add delete button if needed, ensuring only admins can see/use it
+    // Removed the delete action column
   ];
 
   return (
@@ -160,6 +123,9 @@ export default function ShipmentPage() {
         <Typography variant="h4" sx={{ mb: 2 }}>
           Shipments
         </Typography>
+        <Button variant="outlined" onClick={handleLogout}>
+          Logout
+        </Button>
         <Button variant="contained" onClick={handleOpen}>
           Add Shipment
         </Button>

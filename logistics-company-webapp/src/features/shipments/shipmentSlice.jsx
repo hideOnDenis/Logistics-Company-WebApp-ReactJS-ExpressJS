@@ -115,7 +115,7 @@ const shipmentSlice = createSlice({
           (shipment) => shipment._id === action.payload._id
         );
         if (index !== -1) {
-          state.shipments[index] = action.payload;
+          state.shipments[index].status = action.payload.status;
         }
       });
   },

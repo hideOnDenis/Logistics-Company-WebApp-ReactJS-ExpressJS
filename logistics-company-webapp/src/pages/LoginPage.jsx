@@ -37,7 +37,12 @@ function LoginPage() {
       })
     ).then((action) => {
       if (action.type === "auth/signIn/fulfilled") {
-        navigate("/employee/dashboard");
+        const isAdmin = localStorage.getItem("isAdmin") === "true";
+        if (isAdmin) {
+          navigate("/employee/dashboard");
+        } else {
+          navigate("/client/shipments");
+        }
       }
     });
   };
