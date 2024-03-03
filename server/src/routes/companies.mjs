@@ -88,6 +88,29 @@ router.delete('/api/companies/:companyId', adminAuth, async (req, res) => {
     }
 });
 
+// Edit a company's name
+router.patch('/api/companies/:companyId/name', adminAuth, async (req, res) => {
+    try {
+        const { companyId } = req.params;
+        const { newName } = req.body;
+
+        // Find the company by ID
+        const company = await Company.findById(companyId);
+        if (!company) {
+            return res.status(404).json({ message: 'Company not found' });
+        }
+
+        // Update the company's name
+        company.name = newName;
+        await company.save();
+
+        res.json({ message: 'Company name updated successfully', company });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
 
 
 export default router;

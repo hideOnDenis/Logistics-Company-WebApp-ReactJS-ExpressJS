@@ -4,10 +4,18 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUsers, toggleAdminStatus } from "../features/users/userSlice";
 import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import { useNavigate } from "react-router-dom";
+import { useTheme } from "@mui/material/styles";
 
 export default function UsersPage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { users, isLoading, error } = useSelector((state) => state.users);
+
+  const theme = useTheme();
+  const headerHeight = 64; // Example header height, adjust as needed
+  const padding = theme.spacing(2);
 
   useEffect(() => {
     dispatch(fetchUsers());
@@ -16,6 +24,10 @@ export default function UsersPage() {
   const handleToggleAdmin = async (userId) => {
     await dispatch(toggleAdminStatus(userId));
     dispatch(fetchUsers());
+  };
+
+  const handleBackClick = () => {
+    navigate("/employee/dashboard"); // Navigate back to the dashboard
   };
 
   const columns = [
@@ -53,11 +65,33 @@ export default function UsersPage() {
     // Adjusted Box styles to fill the whole viewport
     <Box
       sx={{
-        height: "100vh",
+        height:
+          "calc(100vh - " +
+          headerHeight +
+          "px - " +
+          padding +
+          " - " +
+          padding +
+          ")",
         width: "100%",
-        "& .MuiDataGrid-root": { border: 0 },
       }}
     >
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          p: 2,
+        }}
+      >
+        <Typography variant="h4" component="h1">
+          Users
+        </Typography>
+        <Button variant="contained" onClick={handleBackClick} color="success">
+          Back to Dashboard
+        </Button>
+      </Box>
+
       <DataGrid
         rows={rows}
         columns={columns}

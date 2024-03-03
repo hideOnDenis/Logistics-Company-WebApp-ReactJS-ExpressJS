@@ -108,6 +108,28 @@ export const removeUserFromCompany = createAsyncThunk(
   }
 );
 
+// Update company name
+export const updateCompanyName = createAsyncThunk(
+  "companies/updateCompanyName",
+  async ({ companyId, newName }, { rejectWithValue }) => {
+    try {
+      const response = await axios.patch(
+        `${domain}/api/companies/${companyId}/name`,
+        { newName: newName },
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+
+      return response.data; // This should include the updated company object
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
 const initialState = {
   items: [],
   status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
@@ -172,6 +194,18 @@ const companySlice = createSlice({
       .addCase(removeUserFromCompany.rejected, (state, action) => {
         // You can handle the error here if needed
         state.error = action.payload || "Failed to remove user from company";
+      })
+      .addCase(updateCompanyName.fulfilled, (state, action) => {
+        const index = state.items.findIndex(
+          (company) => company._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.items[index] = action.payload; // Update the company with the updated data
+        }
+      })
+      // Optionally handle the rejected case
+      .addCase(updateCompanyName.rejected, (state, action) => {
+        state.error = action.payload || "Failed to update company name";
       });
   },
 });

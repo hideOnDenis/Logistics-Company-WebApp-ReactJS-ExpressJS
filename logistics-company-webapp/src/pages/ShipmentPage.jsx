@@ -18,6 +18,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { useNavigate } from "react-router-dom";
 
 const style = {
   position: "absolute",
@@ -35,7 +36,7 @@ export default function ShipmentPage() {
   const [selectedCompany, setSelectedCompany] = useState("");
   const [destination, setDestination] = useState("");
   const [editRowsModel, setEditRowsModel] = useState({});
-
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { shipments, status } = useSelector((state) => state.shipments);
   const companies = useSelector((state) => state.companies.items); // Accessing companies correctly
@@ -52,6 +53,10 @@ export default function ShipmentPage() {
     setOpen(false);
     setSelectedCompany("");
     setDestination("");
+  };
+
+  const handleBackToDashboard = () => {
+    navigate("/employee/dashboard");
   };
 
   const handleAddShipment = () => {
@@ -160,6 +165,14 @@ export default function ShipmentPage() {
         <Typography variant="h4" sx={{ mb: 2 }}>
           Shipments
         </Typography>
+        <Button
+          variant="contained"
+          color="success" // This will apply the green color defined in your theme
+          onClick={handleBackToDashboard}
+          sx={{ marginRight: 2 }} // Add some margin if you want space between buttons
+        >
+          Back to Dashboard
+        </Button>
         <Button variant="contained" onClick={handleOpen}>
           Add Shipment
         </Button>

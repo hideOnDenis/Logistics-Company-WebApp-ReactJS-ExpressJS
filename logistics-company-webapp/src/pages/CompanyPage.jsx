@@ -8,6 +8,7 @@ import {
   deleteCompany,
   addUserToCompany,
   removeUserFromCompany,
+  updateCompanyName,
 } from "../features/companies/companySlice";
 import { fetchUsers } from "../features/users/userSlice";
 import Button from "@mui/material/Button";
@@ -21,6 +22,7 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const style = {
   position: "absolute",
@@ -43,6 +45,14 @@ export default function CompaniesPage() {
     useState(false);
   const [companyToRemoveFrom, setCompanyToRemoveFrom] = useState("");
   const [userToRemove, setUserToRemove] = useState("");
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [companyToEdit, setCompanyToEdit] = useState(null);
+
+  const navigate = useNavigate();
+
+  const handleBackClick = () => {
+    navigate("/employee/dashboard"); // Navigate to the dashboard
+  };
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -55,8 +65,19 @@ export default function CompaniesPage() {
 
   const handleOpenRemoveUserFromCompanyModal = () =>
     setRemoveUserFromCompanyOpen(true);
+
   const handleCloseRemoveUserFromCompanyModal = () =>
     setRemoveUserFromCompanyOpen(false);
+
+  const handleOpenEditModal = (company) => {
+    setCompanyToEdit(company);
+    setEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
+    setCompanyToEdit(null);
+  };
 
   const dispatch = useDispatch();
 
@@ -114,6 +135,30 @@ export default function CompaniesPage() {
     handleCloseRemoveUserFromCompanyModal(); // Close the modal
   };
 
+  const handleEditCompany = async () => {
+    if (companyToEdit && companyName.trim()) {
+      // Dispatch the update company name action
+      const actionResult = await dispatch(
+        updateCompanyName({
+          companyId: companyToEdit._id,
+          newName: companyName,
+        })
+      );
+
+      if (updateCompanyName.fulfilled.match(actionResult)) {
+        dispatch(fetchCompanies()); // Refetch companies to update the list
+      }
+      handleCloseEditModal(); // Close the edit modal
+    }
+  };
+
+  const headerHeight = 100; // The height of your page header
+  const footerHeight = 0; // The height of your page footer, if any
+  const pageMargin = 16; // The total vertical margin of your page
+  const dataGridHeight = `calc(100vh - ${
+    headerHeight + footerHeight + pageMargin
+  }px)`;
+
   const columns = [
     { field: "id", headerName: "ID", width: 90, hide: true },
     { field: "name", headerName: "Name", width: 200 },
@@ -125,8 +170,8 @@ export default function CompaniesPage() {
         params.row.employees.map((e) => e.email).join(", "),
     },
     {
-      field: "actions",
-      headerName: "Actions",
+      field: "delete",
+      headerName: "Delete",
       sortable: false,
       width: 150,
       renderCell: (params) => (
@@ -139,6 +184,21 @@ export default function CompaniesPage() {
             Delete
           </Button>
         </>
+      ),
+    },
+    {
+      field: "edit",
+      headerName: "Edit",
+      sortable: false,
+      width: 150,
+      renderCell: (params) => (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => handleOpenEditModal(params.row)}
+        >
+          Edit
+        </Button>
       ),
     },
   ];
@@ -163,6 +223,24 @@ export default function CompaniesPage() {
         <Typography variant="h4" component="h1" sx={{ flexGrow: 1 }}>
           Companies
         </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between", // Adjust this as needed
+            alignItems: "center",
+            gap: "8px",
+            p: 2,
+          }}
+        >
+          <Button
+            variant="contained"
+            onClick={handleBackClick}
+            color="success" // Add the onClick handler
+          >
+            Back to Dashboard
+          </Button>
+          {/* Other buttons and UI elements */}
+        </Box>
         {/* The buttons will automatically space out evenly with the gap property */}
         <Button
           variant="contained"
@@ -190,6 +268,10 @@ export default function CompaniesPage() {
         components={{ Toolbar: GridToolbar }}
         disableSelectionOnClick
         getRowId={(row) => row.id}
+        sx={{
+          height: dataGridHeight, // Use the calculated height
+          "& .MuiDataGrid-main": { height: "100%" },
+        }}
       />
       {companiesError && <p>Error: {companiesError}</p>}
       <Modal
@@ -344,6 +426,41 @@ export default function CompaniesPage() {
               color="primary"
             >
               Remove User from Company
+            </Button>
+          </Stack>
+        </Box>
+      </Modal>
+      <Modal
+        open={editModalOpen}
+        onClose={handleCloseEditModal}
+        aria-labelledby="edit-company-modal-title"
+        aria-describedby="edit-company-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="edit-company-modal-title" variant="h6" component="h2">
+            Edit Company Name
+          </Typography>
+          <Stack spacing={2} sx={{ mt: 2 }}>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="name"
+              label="Company Name"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+            />
+            <Button onClick={handleCloseEditModal} variant="contained">
+              Cancel
+            </Button>
+            <Button
+              onClick={handleEditCompany}
+              variant="contained"
+              color="primary"
+            >
+              Save Changes
             </Button>
           </Stack>
         </Box>
