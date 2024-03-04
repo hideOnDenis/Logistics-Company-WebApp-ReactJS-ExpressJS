@@ -18,7 +18,7 @@ const rows = [
     "16 Mar, 2019",
     "Elvis Presley",
     "Tupelo, MS",
-    "VISA ⠀•••• 3719",
+
     312.44
   ),
   createData(
@@ -26,7 +26,7 @@ const rows = [
     "16 Mar, 2019",
     "Paul McCartney",
     "London, UK",
-    "VISA ⠀•••• 2574",
+
     866.99
   ),
   createData(
@@ -34,7 +34,7 @@ const rows = [
     "16 Mar, 2019",
     "Tom Scholz",
     "Boston, MA",
-    "MC ⠀•••• 1253",
+
     100.81
   ),
   createData(
@@ -42,7 +42,7 @@ const rows = [
     "16 Mar, 2019",
     "Michael Jackson",
     "Gary, IN",
-    "AMEX ⠀•••• 2000",
+
     654.39
   ),
   createData(
@@ -50,7 +50,7 @@ const rows = [
     "15 Mar, 2019",
     "Bruce Springsteen",
     "Long Branch, NJ",
-    "VISA ⠀•••• 5919",
+
     212.79
   ),
 ];
@@ -69,7 +69,7 @@ export default function Orders() {
             <TableCell>Date</TableCell>
             <TableCell>Name</TableCell>
             <TableCell>Ship To</TableCell>
-            <TableCell>Payment Method</TableCell>
+
             <TableCell align="right">Sale Amount</TableCell>
           </TableRow>
         </TableHead>
@@ -79,8 +79,7 @@ export default function Orders() {
               <TableCell>{row.date}</TableCell>
               <TableCell>{row.name}</TableCell>
               <TableCell>{row.shipTo}</TableCell>
-              <TableCell>{row.paymentMethod}</TableCell>
-              <TableCell align="right">{`$${row.amount}`}</TableCell>
+              <TableCell align="right">{`$50`}</TableCell>
             </TableRow>
           ))}
         </TableBody>

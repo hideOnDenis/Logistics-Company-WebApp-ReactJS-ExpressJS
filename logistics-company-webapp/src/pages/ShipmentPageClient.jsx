@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchShipments,
+  fetchClientShipments,
   createShipment,
-  updateShipmentStatus,
 } from "../features/shipments/shipmentSlice";
 import { fetchCompanies } from "../features/companies/companySlice";
 import { logout } from "../features/auth/authSlice.jsx";
@@ -46,7 +45,7 @@ export default function ShipmentPageClient() {
     if (companies.length === 0) {
       dispatch(fetchCompanies()); // Fetch companies if not already available
     }
-    dispatch(fetchShipments());
+    dispatch(fetchClientShipments()); // Use fetchClientShipments to fetch only the client's shipments
   }, [dispatch]);
 
   const handleOpen = () => setOpen(true);

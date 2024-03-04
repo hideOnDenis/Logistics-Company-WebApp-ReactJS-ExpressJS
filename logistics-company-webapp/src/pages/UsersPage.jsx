@@ -18,7 +18,7 @@ export default function UsersPage() {
   const { users, isLoading, error } = useSelector((state) => state.users);
 
   const theme = useTheme();
-  const headerHeight = 64; // Example header height, adjust as needed
+  const headerHeight = 64;
   const padding = theme.spacing(2);
 
   useEffect(() => {

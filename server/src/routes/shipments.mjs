@@ -7,8 +7,8 @@ import { Shipment } from "../mongoose/schemas/Shipment.mjs";
 
 const router = Router();
 
-// Fetch shipments
-router.get("/api/shipments", auth, async (req, res) => {
+// Fetch all shipments
+router.get("/api/shipments", adminAuth, async (req, res) => {
     try {
         // If you want to return shipments for the logged-in user only:
         // const shipments = await Shipment.find({ createdBy: req.user.id }).populate('company', 'name');
@@ -20,6 +20,22 @@ router.get("/api/shipments", auth, async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
+// Fetch shipments for the logged-in client
+router.get("/api/client/shipments", auth, async (req, res) => {
+    try {
+        // Ensure only shipments created by the logged-in user are returned
+        // and populate both the company name and createdBy email.
+        const shipments = await Shipment.find({ createdBy: req.user.id })
+            .populate('company', 'name')
+            .populate('createdBy', 'email'); // Populate the createdBy field with the email
+        res.json(shipments);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+
 
 // Create a new shipment
 router.post("/api/shipments", auth, async (req, res) => {
