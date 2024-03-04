@@ -4,7 +4,7 @@ import logisticsImage from "../assets/images/logistics.png"; // Import the logis
 
 function HomePage() {
   return (
-    <div className="relative">
+    <div className="relative" style={{ height: "100vh", overflow: "hidden" }}>
       <Navbar />
       {/* Add pointer-events-none to allow clicks to pass through */}
       <div className="flex justify-center items-center absolute top-0 right-0 bottom-0 left-0 pointer-events-none">

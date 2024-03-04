@@ -2,7 +2,11 @@ import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers, toggleAdminStatus } from "../features/users/userSlice";
+import {
+  fetchUsers,
+  toggleAdminStatus,
+  deleteUser,
+} from "../features/users/userSlice";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { useNavigate } from "react-router-dom";
@@ -24,6 +28,13 @@ export default function UsersPage() {
   const handleToggleAdmin = async (userId) => {
     await dispatch(toggleAdminStatus(userId));
     dispatch(fetchUsers());
+  };
+
+  const handleDeleteUser = async (userId) => {
+    // Confirm before deleting
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      await dispatch(deleteUser(userId));
+    }
   };
 
   const handleBackClick = () => {
@@ -51,6 +62,21 @@ export default function UsersPage() {
           onClick={() => handleToggleAdmin(params.row.id)}
         >
           {params.row.isAdmin ? "Make Client" : "Make Admin"}
+        </Button>
+      ),
+    },
+    {
+      field: "delete",
+      headerName: "Delete",
+      sortable: false,
+      width: 100,
+      renderCell: (params) => (
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => handleDeleteUser(params.row.id)}
+        >
+          Delete
         </Button>
       ),
     },

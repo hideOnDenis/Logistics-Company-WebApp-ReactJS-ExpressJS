@@ -92,6 +92,28 @@ router.patch('/api/users/toggleAdmin/:id', adminAuth, async (req, res) => {
     }
 });
 
+// Delete user
+router.delete('/api/users/:id', adminAuth, async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Find the user by ID and delete them from the database
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        await User.findByIdAndDelete(id);
+        res.status(200).send('User deleted successfully');
+    } catch (error) {
+        console.error(error);
+        if (error.kind === 'ObjectId') {
+            return res.status(400).send('Invalid user ID');
+        }
+        res.status(500).send('Server error');
+    }
+});
+
+
 
 
 
