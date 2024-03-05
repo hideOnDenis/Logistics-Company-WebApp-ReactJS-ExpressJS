@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { auth, adminAuth } from "../utils/middlewares.mjs";
 import { User } from "../mongoose/schemas/User.mjs";
-import { Company } from "../mongoose/schemas/company.mjs";
+import { Company } from "../mongoose/schemas/Company.mjs";
 import { Shipment } from "../mongoose/schemas/Shipment.mjs";
 
 
