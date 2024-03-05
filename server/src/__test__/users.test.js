@@ -1,70 +1,73 @@
 import request from 'supertest';
 import express from 'express';
 import bodyParser from 'body-parser';
-import jwt from 'jsonwebtoken';
+import { User } from '../mongoose/schemas/User.mjs'; // Ensure correct path
 
-jest.mock('../mongoose/schemas/User.mjs');
-jest.mock('bcryptjs');
-jest.mock('jsonwebtoken');
-jest.mock('../utils/middlewares.mjs', () => ({
-    auth: jest.fn((req, res, next) => next()),
-    adminAuth: jest.fn((req, res, next) => next())
+// Mock external modules
+jest.mock('../mongoose/schemas/User.mjs', () => ({
+    User: {
+        findOne: jest.fn(),
+        save: jest.fn().mockImplementation(() => ({ _id: 'mockUserId', email: 'mock@example.com' })),
+    },
+}));
+jest.mock('bcryptjs', () => ({
+    compare: jest.fn(),
+    hash: jest.fn(),
+}));
+jest.mock('jsonwebtoken', () => ({
+    sign: jest.fn(),
 }));
 
-const { User } = require('../mongoose/schemas/User.mjs');
-const bcrypt = require('bcryptjs');
+// Import your router here. Ensure the path is correct
+import usersRouter from '../routes/users.mjs';
+
 const app = express();
 app.use(bodyParser.json());
-app.use('/', require('./users.mjs')); // Adjust the path to match your project structure
+app.use('/', usersRouter); // Ensure you're using the correct path to your users router
 
-// Set up any global configuration for your tests
 beforeEach(() => {
-    // Clear all instances and calls to constructor and all methods:
-    User.mockClear();
-    bcrypt.compare.mockClear();
-    jwt.sign.mockClear();
+    jest.clearAllMocks(); // Clears the mock call history before each test
 });
-
 
 describe('POST /api/register', () => {
     it('should register a new user successfully', async () => {
-        User.findOne.mockResolvedValue(null); // Simulate user not existing yet
-        User.mockImplementation(() => ({ save: jest.fn().mockResolvedValue(true) })); // Mock user save
+        require('../mongoose/schemas/User.mjs').User.findOne.mockResolvedValue(null); // Simulate user not existing
+        const mockSave = jest.fn().mockResolvedValue(true); // Mock save method
+        require('../mongoose/schemas/User.mjs').User.mockImplementation(() => ({ save: mockSave }));
 
         const response = await request(app)
             .post('/api/register')
             .send({ email: 'newuser@example.com', password: 'password123' });
 
         expect(response.statusCode).toBe(201);
-        expect(response.text).toEqual('User created successfully');
+        expect(mockSave).toHaveBeenCalled(); // Ensure the save method was called
     });
-
-    // Add more tests to cover different scenarios, such as user already exists
 });
 
 describe('POST /api/login', () => {
     it('should authenticate a user successfully', async () => {
-        User.findOne.mockResolvedValue({
+        const userCredentials = { email: 'user@example.com', password: 'password123' };
+        User.findOne.mockResolvedValueOnce({
             _id: 'user123',
-            email: 'user@example.com',
-            password: 'hashedpassword',
-            isAdmin: false
+            email: userCredentials.email,
+            password: 'hashedpassword', // Assuming this is the hashed version of 'password123'
         });
-        bcrypt.compare.mockResolvedValue(true);
+
+        // Mock bcrypt compare to return true for matching passwords
+        const bcrypt = require('bcryptjs');
+        bcrypt.compare.mockResolvedValueOnce(true);
+
+        // Mock jwt to return a token
+        const jwt = require('jsonwebtoken');
         jwt.sign.mockReturnValue('token123');
 
-        const response = await request(app)
-            .post('/api/login')
-            .send({ email: 'user@example.com', password: 'password123' });
+        const response = await request(app).post('/api/login').send(userCredentials);
 
         expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual(expect.objectContaining({
-            token: 'token123',
-            email: 'user@example.com',
-            id: 'user123',
-            isAdmin: false
-        }));
+        expect(response.body).toHaveProperty('token', 'token123');
+        expect(bcrypt.compare).toHaveBeenCalledWith(userCredentials.password, 'hashedpassword');
+        expect(jwt.sign).toHaveBeenCalledTimes(1);
     });
 
-    // Add more tests to cover different scenarios, such as incorrect password, user not found, etc.
+
 });

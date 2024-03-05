@@ -114,7 +114,4 @@ router.delete('/api/users/:id', adminAuth, async (req, res) => {
 });
 
 
-
-
-
 export default router;
