@@ -10,10 +10,7 @@ const router = Router();
 // Fetch all shipments
 router.get("/api/shipments", adminAuth, async (req, res) => {
     try {
-        // If you want to return shipments for the logged-in user only:
-        // const shipments = await Shipment.find({ createdBy: req.user.id }).populate('company', 'name');
 
-        // If you want to return all shipments
         const shipments = await Shipment.find().populate('createdBy', 'email').populate('company', 'name');
         res.json(shipments);
     } catch (err) {
