@@ -25,6 +25,10 @@ export default function Orders() {
     dispatch(fetchShipments());
   }, [dispatch]);
 
+  // Check if shipments data is being loaded or if there is an error
+  const isLoading = status === "loading";
+  const hasShipments = shipments.length > 0;
+
   return (
     <React.Fragment>
       <Title>Recent Orders</Title>
@@ -38,14 +42,28 @@ export default function Orders() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {shipments.map((shipment) => (
-            <TableRow key={shipment._id}>
-              <TableCell>{shipment._id}</TableCell>
-              <TableCell>{shipment.createdBy.email}</TableCell>
-              <TableCell>{shipment.destination}</TableCell>
-              <TableCell>{shipment.status}</TableCell>
+          {isLoading ? (
+            <TableRow>
+              <TableCell align="center" colSpan={4}>
+                Loading shipments...
+              </TableCell>
             </TableRow>
-          ))}
+          ) : hasShipments ? (
+            shipments.map((shipment) => (
+              <TableRow key={shipment._id}>
+                <TableCell>{shipment._id}</TableCell>
+                <TableCell>{shipment.createdBy?.email || "N/A"}</TableCell>
+                <TableCell>{shipment.destination || "N/A"}</TableCell>
+                <TableCell>{shipment.status || "N/A"}</TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell align="center" colSpan={4}>
+                No shipments available.
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
       <Link color="primary" href="#" onClick={preventDefault} sx={{ mt: 3 }}>
