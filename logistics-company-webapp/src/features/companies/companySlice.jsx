@@ -26,6 +26,26 @@ export const fetchCompanies = createAsyncThunk(
   }
 );
 
+// Async thunk for fetching companies that have employees
+export const fetchCompaniesWithEmployees = createAsyncThunk(
+  "companies/fetchCompaniesWithEmployees",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${domain}/api/companies/with-employees`,
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
 // Async thunk for adding a new company with authorization
 export const addCompany = createAsyncThunk(
   "companies/addCompany",
@@ -206,6 +226,19 @@ const companySlice = createSlice({
       // Optionally handle the rejected case
       .addCase(updateCompanyName.rejected, (state, action) => {
         state.error = action.payload || "Failed to update company name";
+      })
+      .addCase(fetchCompaniesWithEmployees.pending, (state) => {
+        // Optionally, you can adjust the state specifically for this action
+        state.status = "loading";
+      })
+      .addCase(fetchCompaniesWithEmployees.fulfilled, (state, action) => {
+        // Assuming you want to replace all items with the ones fetched
+        state.status = "succeeded";
+        state.items = action.payload;
+      })
+      .addCase(fetchCompaniesWithEmployees.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
       });
   },
 });

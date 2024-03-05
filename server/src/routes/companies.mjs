@@ -2,6 +2,7 @@ import { Router } from "express";
 import { auth, adminAuth } from "../utils/middlewares.mjs";
 import { User } from "../mongoose/schemas/User.mjs";
 import { Company } from "../mongoose/schemas/company.mjs";
+import { Shipment } from "../mongoose/schemas/Shipment.mjs";
 
 
 const router = Router();
@@ -28,6 +29,21 @@ router.get('/api/companies', adminAuth, async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+// Fetch companies with employees
+router.get('/api/companies/with-employees', auth, async (req, res) => {
+    try {
+        // Use the $exists and $ne operators to ensure the employees array is not empty
+        const companiesWithEmployees = await Company.find({ 'employees.0': { $exists: true } }).populate('employees', 'email');
+        if (companiesWithEmployees.length === 0) {
+            return res.status(404).json({ message: 'No companies with employees found' });
+        }
+        res.json(companiesWithEmployees);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 
 // Add user to company
 router.patch('/api/companies/:companyId/employees', adminAuth, async (req, res) => {
@@ -79,14 +95,25 @@ router.delete('/api/companies/:companyId', adminAuth, async (req, res) => {
     try {
         const { companyId } = req.params;
 
-        const company = await Company.findByIdAndDelete(companyId);
-        if (!company) return res.status(404).json({ message: 'Company not found' });
+        // Assuming the 'company' field in the Shipment model references the Company model by its ID
+        // First, delete all shipments associated with this company
+        const deletedShipments = await Shipment.deleteMany({ company: companyId });
+        console.log(deletedShipments); // Optional: Log the result of the deletion
 
-        res.json({ message: 'Company deleted successfully' });
+        // Then, delete the company itself
+        const company = await Company.findByIdAndDelete(companyId);
+        if (!company) {
+            return res.status(404).json({ message: 'Company not found' });
+        }
+
+        res.json({ message: 'Company and all associated shipments deleted successfully' });
     } catch (error) {
+        console.error('Error deleting company and its shipments:', error);
         res.status(500).json({ message: error.message });
     }
 });
+
+
 
 // Edit a company's name
 router.patch('/api/companies/:companyId/name', adminAuth, async (req, res) => {

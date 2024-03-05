@@ -6,7 +6,10 @@ import {
   deleteShipment,
   updateShipmentStatus,
 } from "../features/shipments/shipmentSlice";
-import { fetchCompanies } from "../features/companies/companySlice"; // Assuming you have this
+import {
+  fetchCompanies,
+  fetchCompaniesWithEmployees,
+} from "../features/companies/companySlice"; // Assuming you have this
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -43,7 +46,11 @@ export default function ShipmentPage() {
 
   useEffect(() => {
     if (companies.length === 0) {
-      dispatch(fetchCompanies()); // Fetch companies if not already available
+      dispatch(fetchCompaniesWithEmployees())
+        .then(() => console.log("Fetched companies with employees"))
+        .catch((error) =>
+          console.error("Failed to fetch companies with employees", error)
+        ); // Fetch companies if not already available
     }
     dispatch(fetchShipments());
   }, [dispatch]);

@@ -4,7 +4,10 @@ import {
   fetchClientShipments,
   createShipment,
 } from "../features/shipments/shipmentSlice";
-import { fetchCompanies } from "../features/companies/companySlice";
+import {
+  fetchCompanies,
+  fetchCompaniesWithEmployees,
+} from "../features/companies/companySlice";
 import { logout } from "../features/auth/authSlice.jsx";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -43,7 +46,7 @@ export default function ShipmentPageClient() {
 
   useEffect(() => {
     if (companies.length === 0) {
-      dispatch(fetchCompanies()); // Fetch companies if not already available
+      dispatch(fetchCompaniesWithEmployees()); // Fetch companies if not already available
     }
     dispatch(fetchClientShipments()); // Use fetchClientShipments to fetch only the client's shipments
   }, [dispatch]);
@@ -62,7 +65,7 @@ export default function ShipmentPageClient() {
         destination,
       })
     ).then(() => {
-      dispatch(fetchShipments()); // Refetch shipments to get updated data including sender and company
+      dispatch(fetchClientShipments()); // Refetch shipments to get updated data including sender and company
     });
     handleClose();
   };
