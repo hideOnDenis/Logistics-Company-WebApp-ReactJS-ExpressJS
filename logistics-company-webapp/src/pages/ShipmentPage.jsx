@@ -6,10 +6,7 @@ import {
   deleteShipment,
   updateShipmentStatus,
 } from "../features/shipments/shipmentSlice";
-import {
-  fetchCompanies,
-  fetchCompaniesWithEmployees,
-} from "../features/companies/companySlice"; // Assuming you have this
+import { fetchCompaniesWithEmployees } from "../features/companies/companySlice"; // Assuming you have this
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -39,6 +36,7 @@ export default function ShipmentPage() {
   const [selectedCompany, setSelectedCompany] = useState("");
   const [destination, setDestination] = useState("");
   const [editRowsModel, setEditRowsModel] = useState({});
+  const [weight, setWeight] = useState(""); // New state for handling weight
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { shipments, status } = useSelector((state) => state.shipments);
@@ -60,6 +58,7 @@ export default function ShipmentPage() {
     setOpen(false);
     setSelectedCompany("");
     setDestination("");
+    setWeight(""); // Reset weight on modal close
   };
 
   const handleBackToDashboard = () => {
@@ -67,15 +66,21 @@ export default function ShipmentPage() {
   };
 
   const handleAddShipment = () => {
-    dispatch(
-      createShipment({
-        company: selectedCompany,
-        destination,
-      })
-    ).then(() => {
-      dispatch(fetchShipments()); // Refetch shipments to get updated data including sender and company
-    });
-    handleClose();
+    if (weight > 0) {
+      // Ensure weight is a positive number
+      dispatch(
+        createShipment({
+          company: selectedCompany,
+          destination,
+          weight: parseFloat(weight), // Ensure weight is correctly formatted as a number
+        })
+      ).then(() => {
+        dispatch(fetchShipments());
+      });
+      handleClose();
+    } else {
+      alert("Please enter a valid weight."); // Basic validation feedback
+    }
   };
 
   const handleDeleteShipment = (shipmentId) => {
@@ -112,14 +117,29 @@ export default function ShipmentPage() {
       headerName: "Sender",
       width: 200,
       valueGetter: (params) => params.row.createdBy?.email || "",
-    }, // Adjusted for populated data
+    },
     {
       field: "company",
       headerName: "Company",
       width: 200,
       valueGetter: (params) => params.row.company?.name || "",
-    }, // Adjusted for populated data
+    },
     { field: "destination", headerName: "Destination", width: 200 },
+    // New Weight field
+    {
+      field: "weight",
+      headerName: "Weight (kg)",
+      type: "number",
+      width: 200,
+    },
+    // New Price field
+    {
+      field: "price",
+      headerName: "Price",
+      type: "number",
+      width: 200,
+      valueFormatter: (params) => `$${params.value.toFixed(2)}`,
+    },
     {
       field: "status",
       headerName: "Status",
@@ -143,20 +163,16 @@ export default function ShipmentPage() {
     {
       field: "delete",
       headerName: "Delete",
-      renderCell: (params) => {
-        return (
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => handleDeleteShipment(params.row._id)}
-          >
-            Delete
-          </Button>
-        );
-      },
+      renderCell: (params) => (
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => handleDeleteShipment(params.row._id)}
+        >
+          Delete
+        </Button>
+      ),
     },
-
-    // Add delete button if needed, ensuring only admins can see/use it
   ];
 
   return (
@@ -230,6 +246,17 @@ export default function ShipmentPage() {
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
             />
+            <TextField
+              label="Weight (kg)"
+              type="number"
+              fullWidth
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              InputProps={{ inputProps: { min: 0 } }} // Ensure negative numbers can't be input
+            />
+            <Typography variant="body2">
+              Price is calculated at $1 per kilogram of weight.
+            </Typography>
             <Button onClick={handleClose}>Cancel</Button>
             <Button onClick={handleAddShipment} variant="contained">
               Add

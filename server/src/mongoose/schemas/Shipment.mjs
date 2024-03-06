@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-
 const ShipmentSchema = new mongoose.Schema({
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
@@ -21,7 +20,18 @@ const ShipmentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.String,
         required: true
     },
-
+    weight: {
+        type: mongoose.Schema.Types.Number,
+        required: true,
+        min: [0, 'Weight cannot be negative.'],
+    },
+    price: {
+        type: mongoose.Schema.Types.Number,
+        required: true,
+        min: [1, 'Minimum price must be at least $1.'],
+    },
 });
+
+
 
 export const Shipment = mongoose.model("Shipment", ShipmentSchema);

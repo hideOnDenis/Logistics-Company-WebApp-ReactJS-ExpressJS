@@ -4,10 +4,7 @@ import {
   fetchClientShipments,
   createShipment,
 } from "../features/shipments/shipmentSlice";
-import {
-  fetchCompanies,
-  fetchCompaniesWithEmployees,
-} from "../features/companies/companySlice";
+import { fetchCompaniesWithEmployees } from "../features/companies/companySlice";
 import { logout } from "../features/auth/authSlice.jsx";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -38,7 +35,7 @@ export default function ShipmentPageClient() {
   const [selectedCompany, setSelectedCompany] = useState("");
   const [destination, setDestination] = useState("");
   const [editRowsModel, setEditRowsModel] = useState({});
-
+  const [weight, setWeight] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { shipments, status } = useSelector((state) => state.shipments);
@@ -46,7 +43,11 @@ export default function ShipmentPageClient() {
 
   useEffect(() => {
     if (companies.length === 0) {
-      dispatch(fetchCompaniesWithEmployees()); // Fetch companies if not already available
+      dispatch(fetchCompaniesWithEmployees())
+        .then(() => console.log("Fetched companies with employees"))
+        .catch((error) =>
+          console.error("Failed to fetch companies with employees", error)
+        ); // Fetch companies if not already available
     }
     dispatch(fetchClientShipments()); // Use fetchClientShipments to fetch only the client's shipments
   }, [dispatch]);
@@ -56,18 +57,25 @@ export default function ShipmentPageClient() {
     setOpen(false);
     setSelectedCompany("");
     setDestination("");
+    setWeight("");
   };
 
   const handleAddShipment = () => {
-    dispatch(
-      createShipment({
-        company: selectedCompany,
-        destination,
-      })
-    ).then(() => {
-      dispatch(fetchClientShipments()); // Refetch shipments to get updated data including sender and company
-    });
-    handleClose();
+    if (weight > 0) {
+      // Ensure weight is a positive number
+      dispatch(
+        createShipment({
+          company: selectedCompany,
+          destination,
+          weight: parseFloat(weight), // Ensure weight is correctly formatted as a number
+        })
+      ).then(() => {
+        dispatch(fetchClientShipments());
+      });
+      handleClose();
+    } else {
+      alert("Please enter a valid weight."); // Basic validation feedback
+    }
   };
 
   const handleEditRowsModelChange = useCallback((model) => {
@@ -78,6 +86,7 @@ export default function ShipmentPageClient() {
     dispatch(logout()); // Dispatch the logout action
     navigate("/login"); // Redirect user to login page after logout
   };
+
   const companyOptions = companies?.map((company) => (
     <MenuItem key={company._id} value={company._id}>
       {company.name}
@@ -104,6 +113,20 @@ export default function ShipmentPageClient() {
       valueGetter: (params) => params.row.company?.name || "",
     }, // Adjusted for populated data
     { field: "destination", headerName: "Destination", width: 200 },
+    {
+      field: "weight",
+      headerName: "Weight (kg)",
+      type: "number",
+      width: 200,
+    },
+    // New Price field
+    {
+      field: "price",
+      headerName: "Price",
+      type: "number",
+      width: 200,
+      valueFormatter: (params) => `$${params.value.toFixed(2)}`,
+    },
     {
       field: "status",
       headerName: "Status",
@@ -178,6 +201,17 @@ export default function ShipmentPageClient() {
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
             />
+            <TextField
+              label="Weight (kg)"
+              type="number"
+              fullWidth
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              InputProps={{ inputProps: { min: 0 } }} // Ensure negative numbers can't be input
+            />
+            <Typography variant="body2">
+              Price is calculated at $1 per kilogram of weight.
+            </Typography>
             <Button onClick={handleClose}>Cancel</Button>
             <Button onClick={handleAddShipment} variant="contained">
               Add

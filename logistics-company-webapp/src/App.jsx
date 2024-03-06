@@ -9,6 +9,7 @@ import UsersPage from "./pages/UsersPage.jsx";
 import CompanyPage from "./pages/CompanyPage.jsx";
 import ShipmentPageClient from "./pages/ShipmentPageClient.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import OfficePage from "./pages/OfficePage.jsx";
 
 function App() {
   return (
@@ -55,6 +56,14 @@ function App() {
           element={
             <ProtectedRoute roles={["admin"]}>
               <CompanyPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/employee/offices"
+          element={
+            <ProtectedRoute roles={["admin"]}>
+              <OfficePage />
             </ProtectedRoute>
           }
         />

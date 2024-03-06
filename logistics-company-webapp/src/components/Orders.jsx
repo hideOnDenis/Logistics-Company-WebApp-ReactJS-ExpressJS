@@ -12,6 +12,7 @@ import {
   Box,
 } from "@mui/material";
 import Title from "./Title";
+import { Link as RouterLink } from "react-router-dom";
 
 function preventDefault(event) {
   event.preventDefault();
@@ -66,9 +67,14 @@ export default function Orders() {
           )}
         </TableBody>
       </Table>
-      <Link color="primary" href="#" onClick={preventDefault} sx={{ mt: 3 }}>
-        See more orders
-      </Link>
+      <Box sx={{ mt: 3 }}>
+        <RouterLink
+          to="/employee/shipments"
+          style={{ textDecoration: "underline", color: "#2074d4" }}
+        >
+          See more orders
+        </RouterLink>
+      </Box>
     </React.Fragment>
   );
 }

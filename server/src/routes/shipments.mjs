@@ -36,17 +36,24 @@ router.get("/api/client/shipments", auth, async (req, res) => {
 
 // Create a new shipment
 router.post("/api/shipments", auth, async (req, res) => {
-
     try {
-        const { company, destination } = req.body;
+        const { company, destination, weight } = req.body;
         const createdBy = req.user.id; // Use req.user.id to get the user's ID
+        const price = 1 + (weight > 1 ? weight - 1 : 0);
+        // Ensure that weight is provided and is a positive number
+        if (!weight || weight <= 0) {
+            return res.status(400).json({ message: "Invalid weight provided. Weight must be a positive number." });
+        }
 
         // Create new shipment
         const newShipment = new Shipment({
             createdBy,
             company,
             destination,
+            weight,
+            price, // Include the weight from the request body
             // Status is set to 'preparing' by default in your schema
+            // Price will be calculated automatically in the pre-save hook
         });
         await newShipment.save();
 
@@ -57,9 +64,9 @@ router.post("/api/shipments", auth, async (req, res) => {
             { new: true, useFindAndModify: false }
         );
 
-        // Update user to include new shipment - this step may be redundant
-        // since createdBy is the user, and you're already setting this relationship
-        // by creating the shipment. You might only need to update the Company.
+        // Since the createdBy is a direct relation to the Shipment through its creation,
+        // and assuming your User schema tracks shipments, you might update it as well.
+        // Note: This step might be redundant or necessary depending on your schema design.
         await User.findByIdAndUpdate(
             createdBy,
             { $push: { shipments: newShipment._id } },
@@ -72,6 +79,7 @@ router.post("/api/shipments", auth, async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 });
+
 
 // Delete shipment
 router.delete("/api/shipments/:shipmentId", adminAuth, async (req, res) => {

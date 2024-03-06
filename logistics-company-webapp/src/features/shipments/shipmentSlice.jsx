@@ -27,11 +27,11 @@ export const fetchShipments = createAsyncThunk(
 // Create a new shipment
 export const createShipment = createAsyncThunk(
   "shipments/createShipment",
-  async ({ company, destination }, { rejectWithValue }) => {
+  async ({ company, destination, weight }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
         `${domain}/api/shipments`,
-        { company, destination },
+        { company, destination, weight }, // Include weight here
         { headers: { Authorization: `Bearer ${getToken()}` } }
       );
       return response.data;
