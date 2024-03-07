@@ -1,9 +1,20 @@
-import React from "react";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import Modal from "@mui/material/Modal";
-import { TextField, Stack } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchOffices } from "../features/offices/officeSlice";
+import { fetchCompaniesWithEmployees } from "../features/companies/companySlice";
+import { createOffice } from "../features/offices/officeSlice"; // Assuming you have this action
+import {
+  Box,
+  Button,
+  Typography,
+  Modal,
+  TextField,
+  Stack,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 
 const style = {
@@ -18,19 +29,49 @@ const style = {
 };
 
 export default function OfficePage() {
+  const dispatch = useDispatch();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [newOfficeName, setNewOfficeName] = useState("");
+  const [selectedCompanyId, setSelectedCompanyId] = useState("");
+
+  // Fetch offices and companies when component mounts
+  useEffect(() => {
+    dispatch(fetchOffices());
+    dispatch(fetchCompaniesWithEmployees());
+  }, [dispatch]);
+
+  const { offices, status, error } = useSelector((state) => state.offices);
+  const companies = useSelector((state) => state.companies.items); // Adjust according to your state structure
+
+  const handleOpenModal = () => setModalOpen(true);
+  const handleCloseModal = () => setModalOpen(false);
+
+  const handleCreateOffice = () => {
+    const officeData = {
+      name: newOfficeName,
+      companyId: selectedCompanyId, // Ensure your backend expects this format
+    };
+    dispatch(createOffice(officeData));
+    handleCloseModal();
+  };
+
   const columns = [
     { field: "id", headerName: "ID", width: 90, hide: true },
-    { field: "name", headerName: "Name", width: 200 },
+    { field: "name", headerName: "Name", width: 150 },
     { field: "employees", headerName: "Employees", width: 300 },
-    // Other columns as needed...
+    { field: "companyName", headerName: "Company", width: 200 }, // Add this line
   ];
 
   // Static rows as an example, replace with your own data
-  const rows = [
-    { id: 1, name: "Company A", employees: "John, Jane" },
-    { id: 2, name: "Company B", employees: "Doe, Ann" },
-    // More rows as needed...
-  ];
+  const rows = offices.map((office) => ({
+    ...office,
+    id: office._id, // Ensuring unique ID is used
+    employees: office.employees.join(", "), // Transform array of employees into a string, if necessary
+    companyName: office.company.name, // Accessing the company name from the populated company object
+  }));
+
+  if (status === "loading") return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
     <Box sx={{ height: "100vh", width: "100%" }}>
@@ -65,7 +106,7 @@ export default function OfficePage() {
           <Button variant="contained" color="primary">
             Add User to Office
           </Button>
-          <Button variant="contained" color="primary">
+          <Button variant="contained" color="primary" onClick={handleOpenModal}>
             Add Office
           </Button>
         </Box>
@@ -84,27 +125,51 @@ export default function OfficePage() {
       />
       {/* Modal placeholders */}
       <Modal
-        open={false}
+        open={modalOpen}
+        onClose={handleCloseModal}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          {/* Modal content placeholders */}
           <Typography id="modal-modal-title" variant="h6" component="h2">
-            Modal Title
+            Add New Office
           </Typography>
           <Stack spacing={2} sx={{ mt: 2 }}>
             <TextField
               autoFocus
               margin="dense"
               id="name"
-              label="Name"
+              label="Office Name"
               type="text"
               fullWidth
               variant="outlined"
+              value={newOfficeName}
+              onChange={(e) => setNewOfficeName(e.target.value)}
             />
-            <Button variant="contained">Cancel</Button>
-            <Button variant="contained" color="primary">
+            <FormControl fullWidth>
+              <InputLabel id="company-select-label">Company</InputLabel>
+              <Select
+                labelId="company-select-label"
+                id="company-select"
+                value={selectedCompanyId}
+                label="Company"
+                onChange={(e) => setSelectedCompanyId(e.target.value)}
+              >
+                {companies.map((company) => (
+                  <MenuItem key={company._id} value={company._id}>
+                    {company.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Button variant="contained" onClick={handleCloseModal}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleCreateOffice}
+            >
               Confirm
             </Button>
           </Stack>

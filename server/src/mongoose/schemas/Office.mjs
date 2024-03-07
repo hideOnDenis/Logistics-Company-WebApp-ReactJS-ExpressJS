@@ -4,7 +4,8 @@ const OfficeSchema = new mongoose.Schema({
     name: {
         type: mongoose.Schema.Types.String,
         required: true,
-        trim: true
+        trim: true,
+        unique: true,
     },
     company: {
         type: mongoose.Schema.Types.ObjectId,
