@@ -28,21 +28,104 @@ export const fetchOffices = createAsyncThunk(
 
 export const createOffice = createAsyncThunk(
   "offices/createOffice",
-  async (officeData, thunkAPI) => {
+  async ({ name, company }, { rejectWithValue }) => {
     try {
       const token = getToken(); // Retrieve the authentication token
-      const response = await axios.post(`${domain}/api/offices`, officeData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      console.log({ name, company });
+      const response = await axios.post(
+        `${domain}/api/offices`,
+        {
+          name,
+          company, // Ensure the request body matches backend expectations
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       const message =
         error.response?.data?.message ||
         error.message ||
         "Failed to create office";
-      return thunkAPI.rejectWithValue(message);
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const addUserToOffice = createAsyncThunk(
+  "offices/addUserToOffice",
+  async ({ officeId, userId }, { rejectWithValue }) => {
+    try {
+      const token = getToken(); // Retrieve the authentication token
+      const response = await axios.patch(
+        `${domain}/api/offices/${officeId}/add-user`,
+        { userId }, // Body of the request
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data; // Assuming the API returns the updated office object
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to add user to office";
+      return rejectWithValue(message);
+    }
+  }
+);
+
+// Async thunk to remove user from office
+export const removeUserFromOffice = createAsyncThunk(
+  "offices/removeUserFromOffice",
+  async ({ officeId, userId }, { rejectWithValue }) => {
+    try {
+      const token = getToken(); // Retrieve the authentication token
+      const response = await axios.patch(
+        `${domain}/api/offices/${officeId}/remove-user`, // Update the endpoint to match your new route
+        { userId }, // Body of the request
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data; // Assuming the API returns the updated office object
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to remove user from office";
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const deleteOffice = createAsyncThunk(
+  "offices/deleteOffice",
+  async (officeId, { rejectWithValue }) => {
+    try {
+      const token = getToken(); // Retrieve the authentication token
+      const response = await axios.delete(`${domain}/api/offices/${officeId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        // Assuming the API returns a success message and the ID of the deleted office
+        return { officeId: officeId, message: response.data.message };
+      }
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to delete office";
+      return rejectWithValue(message);
     }
   }
 );
@@ -81,6 +164,43 @@ const officeSlice = createSlice({
       .addCase(createOffice.rejected, (state, action) => {
         // Handle errors
         state.status = "failed";
+        state.error = action.payload;
+      })
+      .addCase(addUserToOffice.fulfilled, (state, action) => {
+        // Find the office in the state and update it
+        const index = state.offices.findIndex(
+          (office) => office._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.offices[index] = action.payload; // Update the office with the returned payload
+        }
+      })
+      .addCase(addUserToOffice.rejected, (state, action) => {
+        state.error = action.payload; // Optionally handle errors
+      })
+      .addCase(removeUserFromOffice.pending, (state) => {
+        // Optionally set loading state
+      })
+      .addCase(removeUserFromOffice.fulfilled, (state, action) => {
+        // Find the office in the state and update it to reflect the removal of the user
+        const index = state.offices.findIndex(
+          (office) => office._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.offices[index] = action.payload; // Update the office with the returned payload
+        }
+      })
+      .addCase(removeUserFromOffice.rejected, (state, action) => {
+        state.error = action.payload; // Optionally handle errors
+      })
+      .addCase(deleteOffice.fulfilled, (state, action) => {
+        // Remove the deleted office from state
+        state.offices = state.offices.filter(
+          (office) => office._id !== action.payload.officeId
+        );
+      })
+      .addCase(deleteOffice.rejected, (state, action) => {
+        // Optionally handle errors
         state.error = action.payload;
       });
   },
