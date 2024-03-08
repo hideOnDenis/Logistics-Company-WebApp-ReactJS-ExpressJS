@@ -5,27 +5,29 @@ import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import Title from "./Title";
 
+// Prevents the default action for an event, useful for stopping link navigation
 function preventDefault(event) {
   event.preventDefault();
 }
 
 export default function Deposits() {
-  const dispatch = useDispatch();
-  const { shipments, status } = useSelector((state) => state.shipments);
+  const dispatch = useDispatch(); // Accesses the Redux dispatch function.
+  const { shipments, status } = useSelector((state) => state.shipments); // Retrieves shipments and their loading status from Redux store.
 
+  // Fetch shipments data when the component mounts.
   useEffect(() => {
     dispatch(fetchShipments());
   }, [dispatch]);
 
   // Function to calculate total profits from all shipments
   const calculateTotalProfits = (shipments) => {
-    // Assuming each shipment object has a 'price' property
+    // Sums up the price of each shipment.
     return shipments.reduce((total, shipment) => total + shipment.price, 0);
   };
 
-  const totalProfits = calculateTotalProfits(shipments);
+  const totalProfits = calculateTotalProfits(shipments); // Holds the total profits calculated from shipments
 
-  // Formatting the total profits as currency
+  // Formats the total profits as currency in US dollars
   const formattedTotalProfits = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",

@@ -3,7 +3,8 @@ import { LineChart, axisClasses } from "@mui/x-charts";
 import * as React from "react";
 import Title from "./Title.jsx";
 
-// Generate Sales Data
+// This whole component is a placeholder
+
 function createData(time, amount) {
   return { time, amount: amount ?? null };
 }

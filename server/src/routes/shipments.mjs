@@ -3,6 +3,7 @@ import { auth, adminAuth } from "../utils/middlewares.mjs";
 import { User } from "../mongoose/schemas/User.mjs";
 import { Company } from "../mongoose/schemas/Company.mjs";
 import { Shipment } from "../mongoose/schemas/Shipment.mjs";
+import mongoose from "mongoose";
 
 
 const router = Router();
@@ -39,10 +40,19 @@ router.post("/api/shipments", auth, async (req, res) => {
     try {
         const { company, destination, weight } = req.body;
         const createdBy = req.user.id; // Use req.user.id to get the user's ID
-        const price = 1 + (weight > 1 ? weight - 1 : 0);
+
         // Ensure that weight is provided and is a positive number
         if (!weight || weight <= 0) {
             return res.status(400).json({ message: "Invalid weight provided. Weight must be a positive number." });
+        }
+
+        // Calculate price
+        let basePrice = weight; // $1 per kilogram of weight
+
+        // Check if the destination is an ObjectId (an office ID)
+        const isCustomDestination = !mongoose.Types.ObjectId.isValid(destination);
+        if (isCustomDestination) {
+            basePrice += 5; // Add $5 for a custom destination
         }
 
         // Create new shipment
@@ -51,10 +61,9 @@ router.post("/api/shipments", auth, async (req, res) => {
             company,
             destination,
             weight,
-            price, // Include the weight from the request body
-            // Status is set to 'preparing' by default in your schema
-            // Price will be calculated automatically in the pre-save hook
+            price: basePrice, // Calculated price
         });
+
         await newShipment.save();
 
         // Update company to include new shipment
@@ -64,14 +73,8 @@ router.post("/api/shipments", auth, async (req, res) => {
             { new: true, useFindAndModify: false }
         );
 
-        // Since the createdBy is a direct relation to the Shipment through its creation,
-        // and assuming your User schema tracks shipments, you might update it as well.
-        // Note: This step might be redundant or necessary depending on your schema design.
-        await User.findByIdAndUpdate(
-            createdBy,
-            { $push: { shipments: newShipment._id } },
-            { new: true, useFindAndModify: false }
-        );
+        // Update the createdBy user to include the new shipment, if necessary
+        // ...
 
         res.status(201).json(newShipment);
     } catch (error) {
@@ -79,6 +82,7 @@ router.post("/api/shipments", auth, async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 });
+
 
 
 // Delete shipment

@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchShipments } from "../features/shipments/shipmentSlice"; // Adjust the import path as necessary
+import { fetchShipments } from "../features/shipments/shipmentSlice";
+import { fetchOffices } from "../features/offices/officeSlice";
 import {
   Link,
   Table,
@@ -14,22 +15,24 @@ import {
 import Title from "./Title";
 import { Link as RouterLink } from "react-router-dom";
 
-function preventDefault(event) {
-  event.preventDefault();
-}
-
 export default function Orders() {
   const dispatch = useDispatch();
   const { shipments, status } = useSelector((state) => state.shipments);
+  const { offices } = useSelector((state) => state.offices);
 
   useEffect(() => {
     dispatch(fetchShipments());
+    dispatch(fetchOffices());
   }, [dispatch]);
 
   // Check if shipments data is being loaded or if there is an error
   const isLoading = status === "loading";
   const hasShipments = shipments.length > 0;
 
+  const getDestinationName = (destinationId) => {
+    const office = offices.find((office) => office._id === destinationId);
+    return office ? `Office: ${office.name}` : destinationId; // Return the destination ID (custom destination) if not found as an office
+  };
   return (
     <React.Fragment>
       <Title>Recent Orders</Title>
@@ -54,7 +57,9 @@ export default function Orders() {
               <TableRow key={shipment._id}>
                 <TableCell>{shipment._id}</TableCell>
                 <TableCell>{shipment.createdBy?.email || "N/A"}</TableCell>
-                <TableCell>{shipment.destination || "N/A"}</TableCell>
+                <TableCell>
+                  {getDestinationName(shipment.destination)}
+                </TableCell>
                 <TableCell>{shipment.status || "N/A"}</TableCell>
               </TableRow>
             ))

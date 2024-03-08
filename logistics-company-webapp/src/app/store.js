@@ -6,6 +6,8 @@ import reportReducer from '../features/reports/reportSlice.jsx';
 import companyReducer from "../features/companies/companySlice.jsx";
 import officeReducer from "../features/offices/officeSlice.jsx";
 
+
+// Redux store
 export const store = configureStore({
   reducer: {
 
@@ -15,7 +17,7 @@ export const store = configureStore({
     report: reportReducer,
     companies: companyReducer,
     offices: officeReducer,
-    // You might have more reducers
+
   },
-  // Middleware can also be added here if needed
+
 });

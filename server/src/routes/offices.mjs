@@ -2,6 +2,7 @@ import { Router } from "express";
 import { auth, adminAuth } from "../utils/middlewares.mjs";
 import { Office } from "../mongoose/schemas/Office.mjs";
 import { Company } from "../mongoose/schemas/Company.mjs";
+import mongoose from "mongoose";
 
 const router = Router();
 
@@ -31,8 +32,6 @@ router.get("/api/offices", auth, async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
-
-
 
 
 // Create a new office with a reference to an existing company
@@ -128,6 +127,79 @@ router.patch("/api/offices/:officeId/remove-user", adminAuth, async (req, res) =
         res.status(500).json({ message: error.message });
     }
 });
+
+// Add shipment to office
+router.patch("/api/offices/:officeId/add-shipment", adminAuth, async (req, res) => {
+    const { officeId } = req.params;
+    const { shipmentId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(officeId) || !mongoose.Types.ObjectId.isValid(shipmentId)) {
+        return res.status(400).json({ message: "Invalid office or shipment ID." });
+    }
+
+    try {
+        // Check if the office exists
+        const office = await Office.findById(officeId);
+        if (!office) {
+            return res.status(404).json({ message: "Office not found." });
+        }
+
+        // Optionally, check if the shipment already exists in the office to avoid duplicates
+        const shipmentExistsInOffice = office.shipments.includes(shipmentId);
+        if (shipmentExistsInOffice) {
+            return res.status(400).json({ message: "Shipment already added to this office." });
+        }
+
+        // Add the shipment to the office
+        office.shipments.push(shipmentId);
+        await office.save();
+
+        // Populate shipments and employees before sending the response
+        const populatedOffice = await Office.findById(office._id)
+            .populate('shipments', 'destination weight') // Assuming 'shipments' is a path in your Office schema
+            .populate('employees', 'name email'); // Assuming 'employees' is a path in your Office schema
+
+        res.status(200).json(populatedOffice);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
+
+// Fetch offices by company ID
+router.get("/api/offices/company/:companyId", auth, async (req, res) => {
+    const { companyId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(companyId)) {
+        return res.status(400).json({ message: "Invalid company ID." });
+    }
+
+    try {
+        const offices = await Office.find({ company: companyId })
+            .populate({
+                path: 'company',
+                select: 'name' // Assuming you only want to populate the company name
+            })
+            .populate({
+                path: 'employees',
+                select: 'name email' // Adjust according to what you want to populate for employees
+            })
+            .populate({
+                path: 'shipments',
+                select: 'destination weight' // Adjust the fields according to your Shipment schema
+            });
+
+        if (!offices.length) {
+            return res.status(404).json({ message: "No offices found for this company." });
+        }
+
+        res.status(200).json(offices);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 
 
 // Delete an office by ID

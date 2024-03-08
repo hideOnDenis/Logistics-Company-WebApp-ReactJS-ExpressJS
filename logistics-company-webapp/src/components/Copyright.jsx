@@ -1,6 +1,7 @@
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 
+// Copyright component at the bottom of the pages
 function Copyright(props) {
   return (
     <Typography

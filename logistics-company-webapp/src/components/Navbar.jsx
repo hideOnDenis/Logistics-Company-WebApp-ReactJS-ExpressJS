@@ -30,7 +30,6 @@ export default function Navbar() {
           <Button color="inherit" onClick={handleLoginClick}>
             Login
           </Button>
-          {/* Add onClick event */}
         </Toolbar>
       </AppBar>
     </Box>

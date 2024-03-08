@@ -106,6 +106,56 @@ export const removeUserFromOffice = createAsyncThunk(
   }
 );
 
+// Add shipment to office
+export const addShipmentToOffice = createAsyncThunk(
+  "offices/addShipmentToOffice",
+  async ({ officeId, shipmentId }, { rejectWithValue }) => {
+    try {
+      const token = getToken();
+      const response = await axios.patch(
+        `${domain}/api/offices/${officeId}/add-shipment`,
+        { shipmentId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to add shipment to office";
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const fetchOfficesByCompany = createAsyncThunk(
+  "offices/fetchOfficesByCompany",
+  async (companyId, { rejectWithValue }) => {
+    try {
+      const token = getToken(); // Retrieve the authentication token
+      const response = await axios.get(
+        `${domain}/api/offices/company/${companyId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch offices by company";
+      return rejectWithValue(message);
+    }
+  }
+);
+
 export const deleteOffice = createAsyncThunk(
   "offices/deleteOffice",
   async (officeId, { rejectWithValue }) => {
@@ -201,6 +251,19 @@ const officeSlice = createSlice({
       })
       .addCase(deleteOffice.rejected, (state, action) => {
         // Optionally handle errors
+        state.error = action.payload;
+      })
+      .addCase(addShipmentToOffice.fulfilled, (state, action) => {
+        // Find the office in the state and update it with the returned payload
+        const index = state.offices.findIndex(
+          (office) => office._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.offices[index] = action.payload;
+        }
+      })
+      .addCase(addShipmentToOffice.rejected, (state, action) => {
+        // Optionally handle errors specifically for this action
         state.error = action.payload;
       });
   },
