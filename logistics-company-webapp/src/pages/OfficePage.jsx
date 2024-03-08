@@ -227,7 +227,6 @@ export default function OfficePage() {
             p: 2,
           }}
         >
-          {/* Replace with static or placeholder buttons */}
           <Button
             variant="contained"
             color="success"
@@ -324,7 +323,7 @@ export default function OfficePage() {
               onChange={(e) => setSelectedUser(e.target.value)}
               // Add a displayEmpty property if you want to show an empty option as default
             >
-              {selectedOffice?.company?.employees.map((user) => (
+              {(selectedOffice?.company?.employees || []).map((user) => (
                 <MenuItem key={user._id} value={user._id}>
                   {user.email}
                 </MenuItem>

@@ -5,7 +5,6 @@ import { Company } from "../mongoose/schemas/Company.mjs";
 import { Shipment } from "../mongoose/schemas/Shipment.mjs";
 import mongoose from "mongoose";
 
-
 const router = Router();
 
 // Fetch all shipments

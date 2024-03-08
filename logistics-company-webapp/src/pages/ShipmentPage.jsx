@@ -306,7 +306,7 @@ export default function ShipmentPage() {
                   id="office-select"
                   value={selectedOffice}
                   onChange={(e) => setSelectedOffice(e.target.value)}
-                  displayEmpty
+                  label="Office"
                 >
                   <MenuItem value="">None (Specify Destination)</MenuItem>
                   {offices.map(
@@ -338,7 +338,10 @@ export default function ShipmentPage() {
               onChange={(e) => setWeight(e.target.value)}
               InputProps={{ inputProps: { min: 0 } }} // Ensure negative numbers can't be input
             />
-
+            <Typography>
+              Shipment price is calculated $1 per kilogram + $5 if it's a custom
+              destination.
+            </Typography>
             <Button onClick={handleAddShipment} variant="contained">
               Add
             </Button>

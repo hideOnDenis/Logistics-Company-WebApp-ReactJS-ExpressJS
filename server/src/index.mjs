@@ -5,7 +5,6 @@ import routes from "./routes/index.mjs";
 import mongoose from "mongoose";
 import cors from "cors";
 
-
 const app = express();
 
 mongoose.connect("mongodb://localhost:27017/express_tutorial")
