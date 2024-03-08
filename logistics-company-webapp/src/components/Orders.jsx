@@ -13,13 +13,14 @@ import {
   Box,
 } from "@mui/material";
 import Title from "./Title";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom"; // For internal navigation
 
 export default function Orders() {
-  const dispatch = useDispatch();
-  const { shipments, status } = useSelector((state) => state.shipments);
-  const { offices } = useSelector((state) => state.offices);
+  const dispatch = useDispatch(); // Hook to dispatch actions
+  const { shipments, status } = useSelector((state) => state.shipments); // Access shipments and their loading status from the store
+  const { offices } = useSelector((state) => state.offices); // Access offices from the store
 
+  // Fetch shipments and offices when the component mounts.
   useEffect(() => {
     dispatch(fetchShipments());
     dispatch(fetchOffices());
@@ -29,6 +30,7 @@ export default function Orders() {
   const isLoading = status === "loading";
   const hasShipments = shipments.length > 0;
 
+  // Function to get the destination name from office ID or return the custom destination.
   const getDestinationName = (destinationId) => {
     const office = offices.find((office) => office._id === destinationId);
     return office ? `Office: ${office.name}` : destinationId; // Return the destination ID (custom destination) if not found as an office
@@ -53,6 +55,7 @@ export default function Orders() {
               </TableCell>
             </TableRow>
           ) : hasShipments ? (
+            // Map through shipments and display each as a table row.
             shipments.map((shipment) => (
               <TableRow key={shipment._id}>
                 <TableCell>{shipment._id}</TableCell>
