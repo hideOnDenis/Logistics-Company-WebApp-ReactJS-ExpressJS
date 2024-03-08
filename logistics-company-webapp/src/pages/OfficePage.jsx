@@ -21,6 +21,7 @@ import {
   InputLabel,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { useNavigate } from "react-router-dom";
 
 const style = {
   position: "absolute",
@@ -35,6 +36,8 @@ const style = {
 
 export default function OfficePage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [modalOpen, setModalOpen] = useState(false);
   const [newOfficeName, setNewOfficeName] = useState("");
   const [selectedCompanyId, setSelectedCompanyId] = useState("");
@@ -51,6 +54,10 @@ export default function OfficePage() {
 
   const { offices, status, error } = useSelector((state) => state.offices);
   const companies = useSelector((state) => state.companies.items); // Adjust according to your state structure
+
+  const handleBackToDashboard = () => {
+    navigate("/employee/dashboard");
+  };
 
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
@@ -144,7 +151,7 @@ export default function OfficePage() {
     { field: "companyName", headerName: "Company", width: 200 },
     {
       field: "actions",
-      headerName: "Actions",
+      headerName: "Add User",
       sortable: false,
       renderCell: (params) => (
         <Button
@@ -221,7 +228,11 @@ export default function OfficePage() {
           }}
         >
           {/* Replace with static or placeholder buttons */}
-          <Button variant="contained" color="success">
+          <Button
+            variant="contained"
+            color="success"
+            onClick={handleBackToDashboard}
+          >
             Back to Dashboard
           </Button>
           <Button variant="contained" color="primary" onClick={handleOpenModal}>
