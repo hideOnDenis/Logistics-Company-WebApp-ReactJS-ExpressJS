@@ -1,4 +1,3 @@
-// src/services/authService.js
 const users = [
     {
         id: "1",
@@ -8,7 +7,7 @@ const users = [
     },
 
 
-]; // This would be your data.js equivalent
+];
 
 export const signInService = async ({ email, password }) => {
     const user = users.find(user => user.email === email && user.password === password);
@@ -38,7 +37,7 @@ export const signUpService = async ({ email, password }) => {
 };
 
 export const getAllUsers = async () => {
-    // In a real application, replace this with a fetch request to your backend
+
     return users; // Return the users array
 };
 
