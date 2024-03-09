@@ -7,7 +7,7 @@ import {
   addUserToOffice,
   removeUserFromOffice,
   deleteOffice,
-} from "../features/offices/officeSlice"; // Assuming you have this action
+} from "../features/offices/officeSlice";
 import {
   Box,
   Button,
@@ -23,6 +23,7 @@ import {
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
 
+// Style object for modal component positioning and styling
 const style = {
   position: "absolute",
   top: "50%",
@@ -38,6 +39,7 @@ export default function OfficePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // State hooks for managing modal views and selected entities
   const [modalOpen, setModalOpen] = useState(false);
   const [newOfficeName, setNewOfficeName] = useState("");
   const [selectedCompanyId, setSelectedCompanyId] = useState("");
@@ -52,8 +54,9 @@ export default function OfficePage() {
     dispatch(fetchCompaniesWithEmployees());
   }, [dispatch]);
 
+  // Extracting office and company data from the Redux store
   const { offices, status, error } = useSelector((state) => state.offices);
-  const companies = useSelector((state) => state.companies.items); // Adjust according to your state structure
+  const companies = useSelector((state) => state.companies.items);
 
   const handleBackToDashboard = () => {
     navigate("/employee/dashboard");
@@ -76,8 +79,9 @@ export default function OfficePage() {
     setRemoveUserModalOpen(true);
   };
 
+  // Creating a new office with selected company
   const handleCreateOffice = () => {
-    console.log("Selected Company ID:", selectedCompanyId); // Debugging line
+    console.log("Selected Company ID:", selectedCompanyId);
 
     if (!newOfficeName || !selectedCompanyId) {
       console.log("Office name and company selection are required.");
@@ -93,11 +97,11 @@ export default function OfficePage() {
     handleCloseModal();
   };
 
+  // Deleting an office
   const handleDeleteOfficeDirectly = async (officeId) => {
     await dispatch(deleteOffice(officeId))
       .unwrap()
       .then(() => {
-        // Optionally, trigger a refresh of the offices list
         dispatch(fetchOffices());
       })
       .catch((error) => {
@@ -105,6 +109,7 @@ export default function OfficePage() {
       });
   };
 
+  // Add user to selected office
   const handleAddUserToSelectedOffice = (officeId, userId) => {
     if (!officeId || !userId) {
       setAddUserError("Please select a user.");
@@ -117,7 +122,7 @@ export default function OfficePage() {
         setAddUserModalOpen(false);
         setSelectedUser("");
         setAddUserError("");
-        // Optionally, trigger a refresh or update of office details to reflect the added user
+
         dispatch(fetchOffices());
       })
       .catch((error) => {
@@ -125,6 +130,7 @@ export default function OfficePage() {
       });
   };
 
+  // Removing a user from an office
   const handleRemoveUserFromSelectedOffice = async () => {
     await dispatch(
       removeUserFromOffice({
@@ -144,6 +150,7 @@ export default function OfficePage() {
       });
   };
 
+  // DataGrid columns configuration
   const columns = [
     { field: "id", headerName: "ID", width: 90, hide: true },
     { field: "name", headerName: "Name", width: 150 },
@@ -196,7 +203,6 @@ export default function OfficePage() {
     },
   ];
 
-  // Static rows as an example, replace with your own data
   const rows = offices.map((office) => ({
     ...office,
     id: office._id,
@@ -247,11 +253,11 @@ export default function OfficePage() {
         disableSelectionOnClick
         getRowId={(row) => row.id}
         sx={{
-          height: "calc(100vh - 100px)", // Adjust based on your actual header/footer height
+          height: "calc(100vh - 100px)",
           "& .MuiDataGrid-main": { height: "100%" },
         }}
       />
-      {/* Modal placeholders */}
+
       <Modal
         open={modalOpen}
         onClose={handleCloseModal}
@@ -321,7 +327,6 @@ export default function OfficePage() {
               id="user-select"
               value={selectedUser}
               onChange={(e) => setSelectedUser(e.target.value)}
-              // Add a displayEmpty property if you want to show an empty option as default
             >
               {(selectedOffice?.company?.employees || []).map((user) => (
                 <MenuItem key={user._id} value={user._id}>
@@ -361,7 +366,6 @@ export default function OfficePage() {
               label="User"
               onChange={(e) => setUserToRemove(e.target.value)}
             >
-              {/* Assuming each user has a unique ID and email */}
               {selectedOffice?.company?.employees.map((user) => (
                 <MenuItem key={user._id} value={user._id}>
                   {user.email}

@@ -15,21 +15,26 @@ import { useTheme } from "@mui/material/styles";
 export default function UsersPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // Accessing users state slice
   const { users, isLoading, error } = useSelector((state) => state.users);
 
   const theme = useTheme();
   const headerHeight = 64;
-  const padding = theme.spacing(2);
+  const padding = theme.spacing(2); // Theme spacing for consistency
 
+  // Fetch users when component mounts
   useEffect(() => {
     dispatch(fetchUsers());
   }, [dispatch]);
 
+  // Toggle admin status of a user
   const handleToggleAdmin = async (userId) => {
     await dispatch(toggleAdminStatus(userId));
     dispatch(fetchUsers());
   };
 
+  // Delete a user with confirmation
   const handleDeleteUser = async (userId) => {
     // Confirm before deleting
     if (window.confirm("Are you sure you want to delete this user?")) {
@@ -82,13 +87,13 @@ export default function UsersPage() {
     },
   ];
 
+  // Map users to rows
   const rows = users.map((user, index) => ({
     ...user,
-    id: user._id || index,
+    id: user._id || index, // Use MongoDB _id as key, fallback to index
   }));
 
   return (
-    // Adjusted Box styles to fill the whole viewport
     <Box
       sx={{
         height:

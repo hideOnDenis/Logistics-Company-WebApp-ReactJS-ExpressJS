@@ -21,13 +21,14 @@ import Chart from "../components/Chart.jsx";
 import Deposits from "../components/Deposits.jsx";
 import Orders from "../components/Orders.jsx";
 import Copyright from "../components/Copyright.jsx";
-import { useDispatch } from "react-redux"; // Import useDispatch
+import { useDispatch } from "react-redux";
 import { logout } from "../features/auth/authSlice"; // Import the logout action
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import * as React from "react";
 
-const drawerWidth = 240;
+const drawerWidth = 240; // Width of the side drawer
 
+// Custom AppBar component from Material UI with styling based on the drawer state
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -46,6 +47,7 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
+// Custom Drawer component from Material UI with conditional styling
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -72,15 +74,15 @@ const Drawer = styled(MuiDrawer, {
   },
 }));
 
-// TODO remove, this demo shouldn't need to reset the theme.
-const defaultTheme = createTheme();
+const defaultTheme = createTheme(); // Default theme for ThemeProvider
 
 export default function EmployeeDashboard() {
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(true); // State for managing drawer open/close
   const dispatch = useDispatch(); // Initialize useDispatch
   const navigate = useNavigate(); // Initialize useNavigate
+
   const toggleDrawer = () => {
-    setOpen(!open);
+    setOpen(!open); // Toggle drawer state
   };
 
   const handleLogout = () => {
@@ -177,7 +179,7 @@ export default function EmployeeDashboard() {
                   <Chart />
                 </Paper>
               </Grid>
-              {/* Recent Deposits */}
+
               <Grid item xs={12} md={4} lg={3}>
                 <Paper
                   sx={{

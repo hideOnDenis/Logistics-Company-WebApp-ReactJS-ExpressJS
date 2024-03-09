@@ -1,4 +1,3 @@
-// features/shipments/shipmentSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -79,6 +78,7 @@ export const updateShipmentStatus = createAsyncThunk(
   }
 );
 
+// Async thunk to fetch only the client shipments (only for the user that's logged in)
 export const fetchClientShipments = createAsyncThunk(
   "shipments/fetchClientShipments",
   async (_, { rejectWithValue }) => {
@@ -139,8 +139,6 @@ const shipmentSlice = createSlice({
       })
       .addCase(fetchClientShipments.fulfilled, (state, action) => {
         state.status = "succeeded";
-        // Optionally, you can have a separate array for client shipments
-        // or just use the existing shipments array if that's the only data needed
         state.shipments = action.payload;
       })
       .addCase(fetchClientShipments.rejected, (state, action) => {

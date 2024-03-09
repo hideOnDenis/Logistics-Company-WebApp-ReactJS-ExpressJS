@@ -10,7 +10,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom"; // For internal routing
 import { useDispatch, useSelector } from "react-redux";
 import { signUp } from "../features/auth/authSlice.jsx";
 import { useNavigate } from "react-router-dom";
@@ -20,10 +20,14 @@ const defaultTheme = createTheme();
 function RegisterPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isLoading, error } = useSelector((state) => state.auth);
+
+  const { isLoading, error } = useSelector((state) => state.auth); // Accessing the auth state
+
+  // Handler for form submission
   const handleRegisterSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    event.preventDefault(); // Prevent default form behavior
+    const data = new FormData(event.currentTarget); // Get form data
+    // Dispatch signUp action with form data
     dispatch(
       signUp({
         email: data.get("email"),
@@ -31,8 +35,8 @@ function RegisterPage() {
       })
     ).then((action) => {
       if (action.meta.requestStatus === "fulfilled") {
-        navigate("/login");
-      } // No need for an else block; errors are handled by updating the state
+        navigate("/login"); // Navigate to login page on successful registration
+      }
     });
   };
 

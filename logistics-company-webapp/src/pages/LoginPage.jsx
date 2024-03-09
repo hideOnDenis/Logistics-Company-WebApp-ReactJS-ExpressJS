@@ -17,25 +17,26 @@ import { useDispatch, useSelector } from "react-redux";
 import { signIn } from "../features/auth/authSlice.jsx";
 import { useNavigate } from "react-router-dom";
 
-// TODO remove, this demo shouldn't need to reset the theme.
-
 const defaultTheme = createTheme();
 
 function LoginPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { isLoading, error } = useSelector((state) => state.auth);
+  const { isLoading, error } = useSelector((state) => state.auth); // Accessing auth state
 
+  // Handles form submission for login
   const handleLoginSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    event.preventDefault(); // Prevent default form submission
+    const data = new FormData(event.currentTarget); // FormData to easily access form values
+    // Dispatch signIn action with form data
     dispatch(
       signIn({
         email: data.get("email"),
         password: data.get("password"),
       })
     ).then((action) => {
+      // After signIn action, navigate based on role
       if (action.type === "auth/signIn/fulfilled") {
         const isAdmin = localStorage.getItem("isAdmin") === "true";
         if (isAdmin) {

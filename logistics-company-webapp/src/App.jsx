@@ -26,7 +26,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* Wrap the protected page components with ProtectedRoute and pass them as JSX to the element prop */}
+
         <Route
           path="/employee/dashboard"
           element={
@@ -67,7 +67,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* Repeat for other protected routes */}
       </Routes>
     </Router>
   );

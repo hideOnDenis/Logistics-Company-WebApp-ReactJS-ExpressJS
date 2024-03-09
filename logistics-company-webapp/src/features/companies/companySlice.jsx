@@ -1,6 +1,5 @@
-// features/companies/companySlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios"; // Assuming you're using axios for HTTP requests
+import axios from "axios";
 
 const domain = "http://localhost:3000";
 
@@ -156,15 +155,11 @@ const initialState = {
   error: null,
 };
 
-// Continue with your slice as before...
-
-// Define the initial state and reducers
+// Defining the initial state and reducers
 const companySlice = createSlice({
   name: "companies",
   initialState,
-  reducers: {
-    // Reducer to reset state or perform other actions
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchCompanies.pending, (state) => {
@@ -190,12 +185,10 @@ const companySlice = createSlice({
           (company) => company._id === companyId
         );
         if (companyIndex !== -1) {
-          // This assumes that the employees array exists. You might need to check or initialize it.
           state.items[companyIndex].employees.push(employee);
         }
       })
       .addCase(addUserToCompany.rejected, (state, action) => {
-        // Optionally handle rejection
         state.error = action.payload || "Failed to add user to company";
       })
       .addCase(removeUserFromCompany.fulfilled, (state, action) => {
@@ -210,9 +203,8 @@ const companySlice = createSlice({
           ].employees.filter((employee) => employee._id !== userId);
         }
       })
-      // Optionally, handle the rejected case:
+
       .addCase(removeUserFromCompany.rejected, (state, action) => {
-        // You can handle the error here if needed
         state.error = action.payload || "Failed to remove user from company";
       })
       .addCase(updateCompanyName.fulfilled, (state, action) => {
@@ -223,16 +215,13 @@ const companySlice = createSlice({
           state.items[index] = action.payload; // Update the company with the updated data
         }
       })
-      // Optionally handle the rejected case
       .addCase(updateCompanyName.rejected, (state, action) => {
         state.error = action.payload || "Failed to update company name";
       })
       .addCase(fetchCompaniesWithEmployees.pending, (state) => {
-        // Optionally, you can adjust the state specifically for this action
         state.status = "loading";
       })
       .addCase(fetchCompaniesWithEmployees.fulfilled, (state, action) => {
-        // Assuming you want to replace all items with the ones fetched
         state.status = "succeeded";
         state.items = action.payload;
       })

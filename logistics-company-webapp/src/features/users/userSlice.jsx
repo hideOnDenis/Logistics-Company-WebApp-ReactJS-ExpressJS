@@ -4,18 +4,20 @@ import axios from "axios";
 
 const domain = "http://localhost:3000";
 
+// Async thunk to fetch users (it fetches them from api.js)
 export const fetchUsers = createAsyncThunk(
   "users/fetchUsers",
   async (_, thunkAPI) => {
     try {
       const response = await getUsers();
-      return response.data; // Assuming the API returns the list of users directly
+      return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
     }
   }
 );
 
+// Async thunk to toggle the admin status
 export const toggleAdminStatus = createAsyncThunk(
   "users/toggleAdminStatus",
   async (userId, thunkAPI) => {
@@ -36,6 +38,7 @@ export const toggleAdminStatus = createAsyncThunk(
   }
 );
 
+// Async thunk to delete a user
 export const deleteUser = createAsyncThunk(
   "users/deleteUser",
   async (userId, thunkAPI) => {
@@ -52,6 +55,7 @@ export const deleteUser = createAsyncThunk(
   }
 );
 
+// Initial state of user slice
 const initialState = {
   users: [],
   isLoading: false,
@@ -61,9 +65,7 @@ const initialState = {
 const userSlice = createSlice({
   name: "user",
   initialState,
-  reducers: {
-    // You can add regular reducers here if needed
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchUsers.pending, (state) => {

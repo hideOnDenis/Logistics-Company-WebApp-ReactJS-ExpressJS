@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios"; // Assuming you're using axios for HTTP requests
+import axios from "axios";
 
 const domain = "http://localhost:3000";
 
@@ -7,6 +7,7 @@ const getToken = () => {
   return localStorage.getItem("accessToken");
 };
 
+// Async thunk to fetch the offices with authorization
 export const fetchOffices = createAsyncThunk(
   "offices/fetchOffices",
   async (_, thunkAPI) => {
@@ -16,9 +17,9 @@ export const fetchOffices = createAsyncThunk(
           Authorization: `Bearer ${getToken()}`,
         },
       });
-      return response.data; // Assuming the API returns an array of offices
+      return response.data;
     } catch (error) {
-      // Use thunkAPI to return a rejected value with a custom error message or handle errors
+      // thunkAPI to return a rejected value with a custom error message or handle errors
       const message =
         error.response?.data?.message || error.message || "An error occurred";
       return thunkAPI.rejectWithValue(message);
@@ -26,6 +27,7 @@ export const fetchOffices = createAsyncThunk(
   }
 );
 
+// Async thunk to create office
 export const createOffice = createAsyncThunk(
   "offices/createOffice",
   async ({ name, company }, { rejectWithValue }) => {
@@ -36,7 +38,7 @@ export const createOffice = createAsyncThunk(
         `${domain}/api/offices`,
         {
           name,
-          company, // Ensure the request body matches backend expectations
+          company,
         },
         {
           headers: {
@@ -55,6 +57,7 @@ export const createOffice = createAsyncThunk(
   }
 );
 
+// Async thunk to add user to an office
 export const addUserToOffice = createAsyncThunk(
   "offices/addUserToOffice",
   async ({ officeId, userId }, { rejectWithValue }) => {
@@ -69,7 +72,7 @@ export const addUserToOffice = createAsyncThunk(
           },
         }
       );
-      return response.data; // Assuming the API returns the updated office object
+      return response.data;
     } catch (error) {
       const message =
         error.response?.data?.message ||
@@ -87,7 +90,7 @@ export const removeUserFromOffice = createAsyncThunk(
     try {
       const token = getToken(); // Retrieve the authentication token
       const response = await axios.patch(
-        `${domain}/api/offices/${officeId}/remove-user`, // Update the endpoint to match your new route
+        `${domain}/api/offices/${officeId}/remove-user`,
         { userId }, // Body of the request
         {
           headers: {
@@ -95,7 +98,7 @@ export const removeUserFromOffice = createAsyncThunk(
           },
         }
       );
-      return response.data; // Assuming the API returns the updated office object
+      return response.data;
     } catch (error) {
       const message =
         error.response?.data?.message ||
@@ -106,7 +109,7 @@ export const removeUserFromOffice = createAsyncThunk(
   }
 );
 
-// Add shipment to office
+// Async thunk to add shipment to office
 export const addShipmentToOffice = createAsyncThunk(
   "offices/addShipmentToOffice",
   async ({ officeId, shipmentId }, { rejectWithValue }) => {
@@ -132,6 +135,7 @@ export const addShipmentToOffice = createAsyncThunk(
   }
 );
 
+// Async thunk to fetch offices by company
 export const fetchOfficesByCompany = createAsyncThunk(
   "offices/fetchOfficesByCompany",
   async (companyId, { rejectWithValue }) => {
@@ -156,6 +160,7 @@ export const fetchOfficesByCompany = createAsyncThunk(
   }
 );
 
+// Async thunk to delete an office
 export const deleteOffice = createAsyncThunk(
   "offices/deleteOffice",
   async (officeId, { rejectWithValue }) => {
@@ -203,16 +208,13 @@ const officeSlice = createSlice({
         state.error = action.payload; // Set the error message from the rejected action
       })
       .addCase(createOffice.pending, (state) => {
-        // Optionally, set a loading state
         state.status = "loading";
       })
       .addCase(createOffice.fulfilled, (state, action) => {
-        // Optionally, add the new office to the state
         state.offices.push(action.payload);
         state.status = "succeeded";
       })
       .addCase(createOffice.rejected, (state, action) => {
-        // Handle errors
         state.status = "failed";
         state.error = action.payload;
       })
@@ -226,11 +228,9 @@ const officeSlice = createSlice({
         }
       })
       .addCase(addUserToOffice.rejected, (state, action) => {
-        state.error = action.payload; // Optionally handle errors
+        state.error = action.payload;
       })
-      .addCase(removeUserFromOffice.pending, (state) => {
-        // Optionally set loading state
-      })
+      .addCase(removeUserFromOffice.pending, (state) => {})
       .addCase(removeUserFromOffice.fulfilled, (state, action) => {
         // Find the office in the state and update it to reflect the removal of the user
         const index = state.offices.findIndex(
@@ -241,7 +241,7 @@ const officeSlice = createSlice({
         }
       })
       .addCase(removeUserFromOffice.rejected, (state, action) => {
-        state.error = action.payload; // Optionally handle errors
+        state.error = action.payload;
       })
       .addCase(deleteOffice.fulfilled, (state, action) => {
         // Remove the deleted office from state
@@ -250,7 +250,6 @@ const officeSlice = createSlice({
         );
       })
       .addCase(deleteOffice.rejected, (state, action) => {
-        // Optionally handle errors
         state.error = action.payload;
       })
       .addCase(addShipmentToOffice.fulfilled, (state, action) => {
@@ -263,7 +262,6 @@ const officeSlice = createSlice({
         }
       })
       .addCase(addShipmentToOffice.rejected, (state, action) => {
-        // Optionally handle errors specifically for this action
         state.error = action.payload;
       });
   },

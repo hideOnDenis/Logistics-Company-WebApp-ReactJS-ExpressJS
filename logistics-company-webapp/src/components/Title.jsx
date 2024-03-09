@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import Typography from "@mui/material/Typography";
 
+// Title component
 function Title(props) {
   return (
     <Typography component="h2" variant="h6" color="primary" gutterBottom>

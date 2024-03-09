@@ -6,7 +6,7 @@ import {
   deleteShipment,
   updateShipmentStatus,
 } from "../features/shipments/shipmentSlice";
-import { fetchCompaniesWithEmployees } from "../features/companies/companySlice"; // Assuming you have this
+import { fetchCompaniesWithEmployees } from "../features/companies/companySlice";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -37,22 +37,25 @@ const style = {
 };
 
 export default function ShipmentPage() {
-  const [open, setOpen] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState("");
-  const [destination, setDestination] = useState("");
-  const [selectedOffice, setSelectedOffice] = useState("");
-  const [customDestination, setCustomDestination] = useState("");
-  const [editRowsModel, setEditRowsModel] = useState({});
-  const [weight, setWeight] = useState(""); // New state for handling weight
+  // State hooks for managing component state
+  const [open, setOpen] = useState(false); // Controls the visibility of the modal for adding shipments
+  const [selectedCompany, setSelectedCompany] = useState(""); // Tracks the selected company for a new shipment
+  const [selectedOffice, setSelectedOffice] = useState(""); // Tracks the selected office as the shipment destination
+  const [customDestination, setCustomDestination] = useState(""); // Tracks a custom destination if provided
+  const [editRowsModel, setEditRowsModel] = useState({}); // Tracks the editing state of rows in the DataGrid
+  const [weight, setWeight] = useState(""); // State for handling weight
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  // Selectors for accessing Redux state
   const { shipments, status } = useSelector((state) => state.shipments);
   const companies = useSelector((state) => state.companies.items);
   const { offices } = useSelector((state) => state.offices);
 
   useEffect(() => {
-    dispatch(fetchCompaniesWithEmployees());
-    dispatch(fetchShipments());
+    dispatch(fetchCompaniesWithEmployees()); // Fetch companies and their employees on component mount
+    dispatch(fetchShipments()); // Fetch shipments on component mount
   }, [dispatch]);
 
   useEffect(() => {
@@ -100,7 +103,7 @@ export default function ShipmentPage() {
           await dispatch(
             addShipmentToOffice({
               officeId: selectedOffice,
-              shipmentId: createShipmentResponse._id, // Assuming this is the format of your response
+              shipmentId: createShipmentResponse._id,
             })
           ).unwrap();
         }
@@ -114,7 +117,6 @@ export default function ShipmentPage() {
         // Close the modal and reset the form
         handleClose();
       } catch (error) {
-        // Handle any errors such as failed shipment creation or failed linking to office
         console.error("Failed to add shipment:", error);
         alert("Failed to add the shipment. Please try again.");
       }
@@ -135,15 +137,7 @@ export default function ShipmentPage() {
     const newStatus = event.target.value;
     // Dispatch the update status action
     dispatch(updateShipmentStatus({ shipmentId: id, status: newStatus }));
-    // If you want to immediately update the local state, you could do it here
-    // but it's better to refetch or update the state based on the response
   };
-
-  const companyOptions = companies?.map((company) => (
-    <MenuItem key={company._id} value={company._id}>
-      {company.name}
-    </MenuItem>
-  ));
 
   const columns = [
     {
@@ -179,14 +173,14 @@ export default function ShipmentPage() {
         }
       },
     },
-    // New Weight field
+
     {
       field: "weight",
       headerName: "Weight (kg)",
       type: "number",
       width: 200,
     },
-    // New Price field
+
     {
       field: "price",
       headerName: "Price",
@@ -245,9 +239,9 @@ export default function ShipmentPage() {
         </Typography>
         <Button
           variant="contained"
-          color="success" // This will apply the green color defined in your theme
+          color="success" // This will apply green color
           onClick={handleBackToDashboard}
-          sx={{ marginRight: 2 }} // Add some margin if you want space between buttons
+          sx={{ marginRight: 2 }}
         >
           Back to Dashboard
         </Button>
@@ -266,7 +260,7 @@ export default function ShipmentPage() {
         editRowsModel={editRowsModel}
         onEditRowsModelChange={handleEditRowsModelChange}
         sx={{
-          height: "calc(100vh - 100px)", // Adjust the height based on your header/footer height
+          height: "calc(100vh - 100px)",
           width: "100%", // Ensure DataGrid takes full width
           ".MuiDataGrid-main": { height: "100%" }, // Make DataGrid main container take full height
         }}

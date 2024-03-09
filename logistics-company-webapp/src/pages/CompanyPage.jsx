@@ -24,6 +24,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
+// Style for modals
 const style = {
   position: "absolute",
   top: "50%",
@@ -36,8 +37,10 @@ const style = {
 };
 
 export default function CompaniesPage() {
+  // State hooks for managing UI and forms
   const [open, setOpen] = useState(false);
   const [companyName, setCompanyName] = useState("");
+  // Modal states
   const [addUserToCompanyOpen, setAddUserToCompanyOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
@@ -49,6 +52,7 @@ export default function CompaniesPage() {
   const [companyToEdit, setCompanyToEdit] = useState(null);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleBackClick = () => {
     navigate("/employee/dashboard"); // Navigate to the dashboard
@@ -79,21 +83,21 @@ export default function CompaniesPage() {
     setCompanyToEdit(null);
   };
 
-  const dispatch = useDispatch();
-
+  // Selectors to access redux state
   const { users } = useSelector((state) => state.users);
-
-  useEffect(() => {
-    dispatch(fetchUsers());
-    dispatch(fetchCompanies());
-  }, [dispatch]);
-
   const {
     items: companies,
     status: companiesStatus,
     error: companiesError,
   } = useSelector((state) => state.companies);
 
+  // Fetch users and companies on component mount
+  useEffect(() => {
+    dispatch(fetchUsers());
+    dispatch(fetchCompanies());
+  }, [dispatch]);
+
+  // Event handlers for UI interactions
   const handleAddCompany = async () => {
     if (companyName.trim()) {
       const actionResult = await dispatch(addCompany({ name: companyName }));
@@ -106,7 +110,7 @@ export default function CompaniesPage() {
 
   const handleDeleteCompany = async (companyId) => {
     await dispatch(deleteCompany(companyId));
-    // Optionally, refetch companies list to reflect the deletion
+
     dispatch(fetchCompanies());
   };
 
@@ -152,13 +156,14 @@ export default function CompaniesPage() {
     }
   };
 
-  const headerHeight = 100; // The height of your page header
-  const footerHeight = 0; // The height of your page footer, if any
-  const pageMargin = 16; // The total vertical margin of your page
+  const headerHeight = 100; // The height of the page header
+  const footerHeight = 0; // The height of the page footer
+  const pageMargin = 16; // The total vertical margin
   const dataGridHeight = `calc(100vh - ${
     headerHeight + footerHeight + pageMargin
   }px)`;
 
+  // Prepare data and columns for the DataGrid component
   const columns = [
     { field: "id", headerName: "ID", width: 90, hide: true },
     { field: "name", headerName: "Name", width: 200 },
@@ -205,7 +210,7 @@ export default function CompaniesPage() {
 
   const rows = companies.map((company, index) => ({
     ...company,
-    id: company._id, // Use the `_id` provided by MongoDB
+    id: company._id, // the _id provided by MongoDB
     employees: company.employees || [], // Ensure there is always an array to map over
   }));
 
@@ -226,22 +231,17 @@ export default function CompaniesPage() {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between", // Adjust this as needed
+            justifyContent: "space-between",
             alignItems: "center",
             gap: "8px",
             p: 2,
           }}
         >
-          <Button
-            variant="contained"
-            onClick={handleBackClick}
-            color="success" // Add the onClick handler
-          >
+          <Button variant="contained" onClick={handleBackClick} color="success">
             Back to Dashboard
           </Button>
-          {/* Other buttons and UI elements */}
         </Box>
-        {/* The buttons will automatically space out evenly with the gap property */}
+
         <Button
           variant="contained"
           color="secondary"
@@ -345,7 +345,6 @@ export default function CompaniesPage() {
             >
               {users
                 .filter((user) => {
-                  // Assuming companies are populated with employee details
                   const selectedCompanyObj = companies.find(
                     (company) => company._id === selectedCompany
                   );

@@ -9,7 +9,7 @@ import {
   fetchOffices,
   fetchOfficesByCompany,
   addShipmentToOffice,
-} from "../features/offices/officeSlice"; // Import the action to fetch offices
+} from "../features/offices/officeSlice";
 import { logout } from "../features/auth/authSlice.jsx";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -95,7 +95,7 @@ export default function ShipmentPageClient() {
           await dispatch(
             addShipmentToOffice({
               officeId: selectedOffice,
-              shipmentId: createShipmentResponse._id, // Assuming this is the format of your response
+              shipmentId: createShipmentResponse._id,
             })
           ).unwrap();
         }
@@ -109,7 +109,6 @@ export default function ShipmentPageClient() {
         // Close the modal and reset the form
         handleClose();
       } catch (error) {
-        // Handle any errors such as failed shipment creation or failed linking to office
         console.error("Failed to add shipment:", error);
         alert("Failed to add the shipment. Please try again.");
       }
@@ -161,14 +160,14 @@ export default function ShipmentPageClient() {
         }
       },
     },
-    // New Weight field
+
     {
       field: "weight",
       headerName: "Weight (kg)",
       type: "number",
       width: 200,
     },
-    // New Price field
+
     {
       field: "price",
       headerName: "Price",
@@ -196,11 +195,7 @@ export default function ShipmentPageClient() {
         <Typography variant="h4" sx={{ mb: 2 }}>
           Shipments
         </Typography>
-        <Button
-          variant="outlined"
-          onClick={handleLogout}
-          sx={{ mr: 2 }} // Adjust spacing as needed
-        >
+        <Button variant="outlined" onClick={handleLogout} sx={{ mr: 2 }}>
           Logout
         </Button>
         <Button variant="contained" onClick={handleOpen}>
@@ -218,9 +213,9 @@ export default function ShipmentPageClient() {
         editRowsModel={editRowsModel}
         onEditRowsModelChange={handleEditRowsModelChange}
         sx={{
-          height: "calc(100vh - 100px)", // Adjust the height based on your header/footer height
+          height: "calc(100vh - 100px)",
           width: "100%", // Ensure DataGrid takes full width
-          ".MuiDataGrid-main": { height: "100%" }, // Make DataGrid main container take full height
+          ".MuiDataGrid-main": { height: "100%" },
         }}
       />
       <Modal open={open} onClose={handleClose}>
