@@ -1,7 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import bodyParser from 'body-parser';
-import { User } from '../mongoose/schemas/User.mjs'; // Ensure correct path
+import { User } from '../mongoose/schemas/User.mjs';
 
 // Mock external modules
 jest.mock('../mongoose/schemas/User.mjs', () => ({
@@ -18,13 +18,12 @@ jest.mock('jsonwebtoken', () => ({
     sign: jest.fn(),
 }));
 
-// Import your router here. Ensure the path is correct
+
 import usersRouter from '../routes/users.mjs';
 
 const app = express();
 app.use(bodyParser.json());
-app.use('/', usersRouter); // Ensure you're using the correct path to your users router
-
+app.use('/', usersRouter);
 beforeEach(() => {
     jest.clearAllMocks(); // Clears the mock call history before each test
 });
@@ -50,7 +49,7 @@ describe('POST /api/login', () => {
         User.findOne.mockResolvedValueOnce({
             _id: 'user123',
             email: userCredentials.email,
-            password: 'hashedpassword', // Assuming this is the hashed version of 'password123'
+            password: 'hashedpassword',
         });
 
         // Mock bcrypt compare to return true for matching passwords

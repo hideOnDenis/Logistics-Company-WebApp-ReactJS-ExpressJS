@@ -1,7 +1,6 @@
-// middlewares.mjs
 import jwt from 'jsonwebtoken';
 
-// Existing auth middleware
+
 export const auth = (req, res, next) => {
     const token = req.header('Authorization')?.split(" ")[1]; // Extract token from header
 
@@ -11,7 +10,7 @@ export const auth = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        // Adjusted to match your token structure:
+
         req.user = { id: decoded.id, isAdmin: decoded.isAdmin };
         next();
     } catch (err) {
@@ -33,9 +32,9 @@ export const adminAuth = (req, res, next) => {
     // Verify token
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        // Assuming decoded contains isAdmin property
+
         if (decoded.isAdmin) {
-            req.user = decoded; // Optionally set user information in request if needed
+            req.user = decoded;
             next(); // Proceed since user is admin
         } else {
             return res.status(403).json({ msg: 'Access forbidden. Requires admin role.' });

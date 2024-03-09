@@ -7,7 +7,7 @@ const CompanySchema = new mongoose.Schema({
         unique: true,
         trim: true
     },
-    // Other company-specific properties
+
     employees: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
@@ -16,7 +16,7 @@ const CompanySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Shipment'
     }],
-    offices: [{ // Add this to reference offices
+    offices: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Office'
     }]

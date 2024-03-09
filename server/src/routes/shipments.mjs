@@ -22,7 +22,7 @@ router.get("/api/shipments", adminAuth, async (req, res) => {
 router.get("/api/client/shipments", auth, async (req, res) => {
     try {
         // Ensure only shipments created by the logged-in user are returned
-        // and populate both the company name and createdBy email.
+        // and populate both the company name and createdBy email
         const shipments = await Shipment.find({ createdBy: req.user.id })
             .populate('company', 'name')
             .populate('createdBy', 'email'); // Populate the createdBy field with the email
@@ -38,7 +38,7 @@ router.get("/api/client/shipments", auth, async (req, res) => {
 router.post("/api/shipments", auth, async (req, res) => {
     try {
         const { company, destination, weight } = req.body;
-        const createdBy = req.user.id; // Use req.user.id to get the user's ID
+        const createdBy = req.user.id; // get the user's ID
 
         // Ensure that weight is provided and is a positive number
         if (!weight || weight <= 0) {
@@ -72,8 +72,6 @@ router.post("/api/shipments", auth, async (req, res) => {
             { new: true, useFindAndModify: false }
         );
 
-        // Update the createdBy user to include the new shipment, if necessary
-        // ...
 
         res.status(201).json(newShipment);
     } catch (error) {

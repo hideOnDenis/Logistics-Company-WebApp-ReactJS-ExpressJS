@@ -12,19 +12,23 @@ const router = Router();
 
 // Register user
 router.post('/api/register', checkSchema(createUserValidationSchema), async (req, res) => {
+    // Validate request body against schema
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+        // If validation fails, return errors
         return res.status(400).json({ errors: errors.array() });
     }
 
     try {
         let { email, password } = req.body;
+        // Check if user already exists
         let user = await User.findOne({ email });
         if (user) {
             return res.status(400).send("User already exists");
         }
+        // If user does not exist, create a new User instance
         user = new User({ email, password });
-        await user.save();
+        await user.save(); // Save the new user to the database
         res.status(201).send("User created successfully");
     } catch (error) {
         console.error(error);
@@ -35,7 +39,7 @@ router.post('/api/register', checkSchema(createUserValidationSchema), async (req
 
 // Login user
 router.post('/api/login', checkSchema(createUserValidationSchema), async (req, res) => {
-
+    // Validate request body against schema
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -43,15 +47,19 @@ router.post('/api/login', checkSchema(createUserValidationSchema), async (req, r
 
     try {
         const { email, password } = req.body;
+        // Find user by email
         let user = await User.findOne({ email });
         if (!user) {
             return res.status(400).send("User not found");
         }
+
+        // Compare provided password with hashed password in database
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).send("Incorrect password");
         }
 
+        // Generate JWT token for user
         const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, { expiresIn: '24h' });
         res.status(200).json({ token, email: user.email, id: user._id, isAdmin: user.isAdmin });
     } catch (error) {
@@ -62,7 +70,7 @@ router.post('/api/login', checkSchema(createUserValidationSchema), async (req, r
 
 });
 
-// Get all users
+// Get all users (admin only)
 router.get('/api/users', adminAuth, async (req, res) => {
     try {
         // Fetch all users from the database

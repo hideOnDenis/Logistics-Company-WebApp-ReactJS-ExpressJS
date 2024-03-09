@@ -14,18 +14,18 @@ router.get("/api/offices", auth, async (req, res) => {
                 path: 'company',
                 select: 'name employees',
                 populate: {
-                    path: 'employees', // Assuming 'company' schema has a field 'employees' that references User collection
-                    model: 'User', // Specify the model used for population if it's not automatically inferred
-                    select: 'name email' // Specify the fields to include
+                    path: 'employees',
+                    model: 'User',
+                    select: 'name email'
                 }
             })
-            // .populate('employees') // Assuming direct references, if offices directly reference employees, populate this too
+            // .populate('employees') 
             .populate({
-                path: 'employees', // Direct employee references within Office, if applicable
+                path: 'employees', // Direct employee references within Office
                 model: 'User',
                 select: 'name email'
             })
-            .populate('shipments'); // Assuming you have shipments related to offices and want to populate them too
+            .populate('shipments');
 
         res.status(200).json(offices);
     } catch (error) {
@@ -51,7 +51,7 @@ router.post("/api/offices", adminAuth, async (req, res) => {
         const newOffice = new Office({ name, company: companyId });
         const savedOffice = await newOffice.save();
 
-        // This part remains unchanged as it's already correctly updating the company
+
         await Company.findByIdAndUpdate(companyId, { $push: { offices: savedOffice._id } }, { new: true });
 
         res.status(201).json(savedOffice);
@@ -76,14 +76,12 @@ router.patch("/api/offices/:officeId/add-user", adminAuth, async (req, res) => {
             return res.status(404).json({ message: "Office not found." });
         }
 
-        // Optionally, you might want to check if the user already exists in the office to avoid duplicates
-
         // Update the office by adding the user to the employees array
         const updatedOffice = await Office.findByIdAndUpdate(
             officeId,
-            { $addToSet: { employees: userId } }, // Use $addToSet to avoid adding duplicates
+            { $addToSet: { employees: userId } }, // $addToSet to avoid adding duplicates
             { new: true } // Return the updated document
-        ).populate('employees'); // Populate the employees field to return detailed info, adjust as needed
+        ).populate('employees'); // Populate the employees field to return detailed info
 
         if (!updatedOffice) {
             return res.status(404).json({ message: "Failed to add user to office." });
@@ -98,7 +96,7 @@ router.patch("/api/offices/:officeId/add-user", adminAuth, async (req, res) => {
 // Patch request to remove a user from an office
 router.patch("/api/offices/:officeId/remove-user", adminAuth, async (req, res) => {
     const { officeId } = req.params;
-    const { userId } = req.body; // Assuming the user ID is sent in the request body
+    const { userId } = req.body;
 
     if (!userId) {
         return res.status(400).json({ message: "User ID is required." });
@@ -116,7 +114,7 @@ router.patch("/api/offices/:officeId/remove-user", adminAuth, async (req, res) =
             officeId,
             { $pull: { employees: userId } }, // Use $pull to remove the user ID from the array
             { new: true } // Return the updated document
-        ).populate('employees', 'name email'); // Repopulate the employees field to return updated info, adjust as needed
+        ).populate('employees', 'name email'); // Repopulate the employees field to return updated info
 
         if (!updatedOffice) {
             return res.status(404).json({ message: "Failed to remove user from office." });
@@ -144,7 +142,7 @@ router.patch("/api/offices/:officeId/add-shipment", adminAuth, async (req, res) 
             return res.status(404).json({ message: "Office not found." });
         }
 
-        // Optionally, check if the shipment already exists in the office to avoid duplicates
+
         const shipmentExistsInOffice = office.shipments.includes(shipmentId);
         if (shipmentExistsInOffice) {
             return res.status(400).json({ message: "Shipment already added to this office." });
@@ -156,8 +154,8 @@ router.patch("/api/offices/:officeId/add-shipment", adminAuth, async (req, res) 
 
         // Populate shipments and employees before sending the response
         const populatedOffice = await Office.findById(office._id)
-            .populate('shipments', 'destination weight') // Assuming 'shipments' is a path in your Office schema
-            .populate('employees', 'name email'); // Assuming 'employees' is a path in your Office schema
+            .populate('shipments', 'destination weight')
+            .populate('employees', 'name email');
 
         res.status(200).json(populatedOffice);
     } catch (error) {
@@ -179,15 +177,15 @@ router.get("/api/offices/company/:companyId", auth, async (req, res) => {
         const offices = await Office.find({ company: companyId })
             .populate({
                 path: 'company',
-                select: 'name' // Assuming you only want to populate the company name
+                select: 'name'
             })
             .populate({
                 path: 'employees',
-                select: 'name email' // Adjust according to what you want to populate for employees
+                select: 'name email'
             })
             .populate({
                 path: 'shipments',
-                select: 'destination weight' // Adjust the fields according to your Shipment schema
+                select: 'destination weight'
             });
 
         if (!offices.length) {
@@ -212,7 +210,7 @@ router.delete("/api/offices/:officeId", adminAuth, async (req, res) => {
             return res.status(404).json({ message: "Office not found." });
         }
 
-        // No additional changes needed here for deletion
+
         res.status(200).json({ message: "Office deleted successfully.", office: deletedOffice });
     } catch (error) {
         res.status(500).json({ message: error.message });

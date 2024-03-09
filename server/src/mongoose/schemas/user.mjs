@@ -17,7 +17,7 @@ const UserSchema = new mongoose.Schema({
     },
     company: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Company' // Assuming a single company per user
+        ref: 'Company'
     },
     shipments: [{
         type: mongoose.Schema.Types.ObjectId,
