@@ -327,6 +327,7 @@ export default function OfficePage() {
               id="user-select"
               value={selectedUser}
               onChange={(e) => setSelectedUser(e.target.value)}
+              label="User"
             >
               {(selectedOffice?.company?.employees || []).map((user) => (
                 <MenuItem key={user._id} value={user._id}>
