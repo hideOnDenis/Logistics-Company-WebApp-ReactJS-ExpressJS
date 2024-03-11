@@ -14,6 +14,13 @@ export default function Deposits() {
   const dispatch = useDispatch(); // Accesses the Redux dispatch function.
   const { shipments, status } = useSelector((state) => state.shipments); // Retrieves shipments and their loading status from Redux store.
 
+  const currentDate = new Date();
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "2-digit",
+  }).format(currentDate);
+
   // Fetch shipments data when the component mounts.
   useEffect(() => {
     dispatch(fetchShipments());
@@ -46,7 +53,7 @@ export default function Deposits() {
             {formattedTotalProfits}
           </Typography>
           <Typography color="text.secondary" sx={{ flex: 1 }}>
-            on 12 March, 2024
+            {formattedDate}
           </Typography>
         </>
       )}

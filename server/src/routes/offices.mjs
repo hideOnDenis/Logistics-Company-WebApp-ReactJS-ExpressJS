@@ -127,7 +127,7 @@ router.patch("/api/offices/:officeId/remove-user", adminAuth, async (req, res) =
 });
 
 // Add shipment to office
-router.patch("/api/offices/:officeId/add-shipment", adminAuth, async (req, res) => {
+router.patch("/api/offices/:officeId/add-shipment", auth, async (req, res) => {
     const { officeId } = req.params;
     const { shipmentId } = req.body;
 
