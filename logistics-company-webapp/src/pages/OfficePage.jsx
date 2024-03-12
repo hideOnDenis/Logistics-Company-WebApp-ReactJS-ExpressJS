@@ -47,6 +47,7 @@ export default function OfficePage() {
   const [selectedUser, setSelectedUser] = useState("");
   const [selectedOffice, setSelectedOffice] = useState("");
   const [addUserError, setAddUserError] = useState("");
+  const [officeEmployees, setOfficeEmployees] = useState([]);
 
   // Fetch offices and companies when component mounts
   useEffect(() => {
@@ -75,7 +76,13 @@ export default function OfficePage() {
   };
 
   const handleOpenRemoveUserModal = (officeId) => {
-    setSelectedOffice(offices.find((office) => office._id === officeId));
+    // Find the selected office
+    const office = offices.find((o) => o._id === officeId);
+    if (office) {
+      setSelectedOffice(office);
+      // Update the state to hold employees of this office
+      setOfficeEmployees(office.employees || []);
+    }
     setRemoveUserModalOpen(true);
   };
 
@@ -367,7 +374,7 @@ export default function OfficePage() {
               label="User"
               onChange={(e) => setUserToRemove(e.target.value)}
             >
-              {selectedOffice?.company?.employees.map((user) => (
+              {officeEmployees.map((user) => (
                 <MenuItem key={user._id} value={user._id}>
                   {user.email}
                 </MenuItem>
